@@ -2,9 +2,9 @@ package com.schedula.schedula.appointment.services.impl;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.schedula.schedula.appointment.mapper.AppointmentMapper;
 import com.schedula.schedula.appointment.models.dto.AppointmentDTO;
@@ -14,55 +14,64 @@ import com.schedula.schedula.appointment.services.AppointmentServices;
 import com.schedula.schedula.enums.AppointmentStatus;
 import com.schedula.schedula.user.models.entities.User;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class AppointmentServicesImpl implements AppointmentServices {
-    @Autowired
-    private AppointmentMapper appointmentMapper;
-    @Autowired
-    private AppointmentRepository appointmentRepository;
+    private final AppointmentMapper appointmentMapper;
+    private final AppointmentRepository appointmentRepository;
 
     @Override
+    @Transactional(rollbackFor = Exception.class) // تراجع في حال حدوث أي خطأ
     public AppointmentDTO saveAppointment(AppointmentDTO appointmentDTO) {
         Appointment appointment = appointmentMapper.toEntity(appointmentDTO);
         return appointmentMapper.toDTO(appointmentRepository.save(appointment));
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class) // تراجع في حال حدوث أي خطأ
     public AppointmentDTO updateAppointment(AppointmentDTO appointmentDTO) {
         Appointment appointment = appointmentMapper.toEntity(appointmentDTO);
         return appointmentMapper.toDTO(appointmentRepository.save(appointment));
     }
 
     @Override
-    public void deleteAppointment(Long id) {
-        appointmentRepository.deleteById(id);
+    @Transactional(rollbackFor = Exception.class) // تراجع في حال حدوث أي خطأ
+    public void deleteAppointment(AppointmentDTO id) {
+        appointmentRepository.deleteById(id.getId());
     }
 
     @Override
-    public AppointmentDTO getAppointmentById(Long id) {
-        return appointmentMapper.toDTO(appointmentRepository.findById(id).orElse(null));
+    @Transactional(readOnly = true) // للبحث فقط، أسرع وأخف على قاعدة البيانات
+    public AppointmentDTO getAppointmentById(AppointmentDTO id) {
+        return appointmentMapper.toDTO(appointmentRepository.findById(id.getId()).orElse(null));
     }
 
     @Override
+    @Transactional(readOnly = true) // للبحث فقط، أسرع وأخف على قاعدة البيانات
     public List<AppointmentDTO> getAllAppointments(Pageable page) {
         List<Appointment> appointments = appointmentRepository.findAll(page).getContent();
         return appointmentMapper.toDTOList(appointments);
     }
 
     @Override
-    public List<AppointmentDTO> getAppointmentsByUserId(User user) {
+    @Transactional(readOnly = true) // للبحث فقط، أسرع وأخف على قاعدة البيانات
+    public List<AppointmentDTO> getAppointmentsByUserId(Pageable page,User user) {
        List<Appointment> appointments = appointmentRepository.findByUserId(user.getId()).findAll();
        return appointmentMapper.toDTOList(appointments);
     }
 
     @Override
-    public List<AppointmentDTO> getAppointmentsByProviderId(Long providerId) {
-        List<Appointment> appointments = appointmentRepository.findByProviderId(providerId).findAll();
+    @Transactional(readOnly = true) // للبحث فقط، أسرع وأخف على قاعدة البيانات
+    public List<AppointmentDTO> getAppointmentsByProviderId(Pageable page,AppointmentDTO providerId) {
+        List<Appointment> appointments = appointmentRepository.findByProviderId(providerId.getId()).findAll();
         return appointmentMapper.toDTOList(appointments);
     }
 
     @Override
-    public List<AppointmentDTO> getAppointmentsByStatus(AppointmentStatus status) {
+    @Transactional(readOnly = true) // للبحث فقط، أسرع وأخف على قاعدة البيانات
+    public List<AppointmentDTO> getAppointmentsByStatus(Pageable page,AppointmentStatus status) {
         List<Appointment> appointments = appointmentRepository.findByStatus(status).findAll();
         return appointmentMapper.toDTOList(appointments);
     }

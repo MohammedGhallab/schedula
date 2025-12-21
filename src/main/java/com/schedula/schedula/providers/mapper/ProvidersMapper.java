@@ -8,7 +8,7 @@ import com.schedula.schedula.providers.models.dto.ProvidersDTO;
 import com.schedula.schedula.providers.models.entities.Providers;
 
 @Mapper(componentModel = "spring")
-public interface ProviderMapper {
+public interface ProvidersMapper {
     Providers toEntity(ProvidersDTO provider);
     ProvidersDTO toDTO(Providers provider);
     List<ProvidersDTO> toDTOList(List<Providers> list);

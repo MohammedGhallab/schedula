@@ -2,12 +2,14 @@ package com.schedula.schedula.providers.services;
 
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
+
 import com.schedula.schedula.providers.models.dto.ProvidersDTO;
 
 public interface ProvidersServices {
     ProvidersDTO saveProviders(ProvidersDTO providersDTO);
-    List<ProvidersDTO> getAllProviders();
+    List<ProvidersDTO> getAllProviders(Pageable page);
     ProvidersDTO getProviderById(Long id);
-    ProvidersDTO updateProvider(Long id, ProvidersDTO providersDTO);
-    void deleteProvider(Long id);
+    ProvidersDTO updateProvider(ProvidersDTO providersDTO);
+    void deleteProvider(ProvidersDTO id);
 }

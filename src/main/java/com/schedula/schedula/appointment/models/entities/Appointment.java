@@ -32,7 +32,7 @@ public class Appointment {
 
     private LocalDate date;
     private LocalTime time;
-
+    private String note;
     @OneToOne(mappedBy = "appointment", cascade = CascadeType.ALL)
     private Payment payment;
 

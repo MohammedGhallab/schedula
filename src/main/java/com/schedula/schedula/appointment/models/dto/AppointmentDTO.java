@@ -7,6 +7,8 @@ import java.util.List;
 
 import com.schedula.schedula.enums.AppointmentStatus;
 import com.schedula.schedula.notification.models.entities.Notification;
+import com.schedula.schedula.payment.models.entities.Payment;
+import com.schedula.schedula.providers.models.dto.ProvidersDTO;
 import com.schedula.schedula.user.models.dto.UserDTO;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -23,7 +25,7 @@ public class AppointmentDTO {
     private UserDTO user;
 
     @Schema(description = "معرف المزود قيمة فريدة", example = "55")
-    private Long providerId;
+    private ProvidersDTO provider;
 
     @Schema(description = "تاريخ الموعد بالصيغة YYYY-MM-DD", example = "2024-12-31")
     @Future(message = "يجب أن يكون التاريخ في المستقبل")
@@ -37,7 +39,7 @@ public class AppointmentDTO {
 
     @Schema(description = "ملاحظات إضافية حول الموعد", example = "يرجى الحضور قبل الموعد بعشر دقائق")
     private String note;
-
+    private Payment payment;
     @Schema(description = "حالة الموعد (مثل: PENDING, CONFIRMED, CANCELLED)", example = "PENDING")
     @NotNull(message = "الحالة مطلوب")
     // @Pattern(regexp = "^(PENDING|CONFIRMED|CANCELLED)$", message = "يجب أن يكون

@@ -11,11 +11,11 @@ import com.schedula.schedula.user.models.entities.User;
 public interface AppointmentServices {
     AppointmentDTO saveAppointment(AppointmentDTO appointmentDTO);
     AppointmentDTO updateAppointment(AppointmentDTO appointmentDTO);
-    void deleteAppointment(Long id);
-    AppointmentDTO getAppointmentById(Long id);
+    void deleteAppointment(AppointmentDTO appointmentDTO);
+    AppointmentDTO getAppointmentById(AppointmentDTO id);
     List<AppointmentDTO> getAllAppointments(Pageable page);
-    List<AppointmentDTO> getAppointmentsByUserId(User user);
-    List<AppointmentDTO> getAppointmentsByProviderId(Long providerId);
-    List<AppointmentDTO> getAppointmentsByStatus(AppointmentStatus status);
+    List<AppointmentDTO> getAppointmentsByUserId(Pageable page,User user);
+    List<AppointmentDTO> getAppointmentsByProviderId(Pageable page,AppointmentDTO providerId);
+    List<AppointmentDTO> getAppointmentsByStatus(Pageable page,AppointmentStatus status);
 
 }

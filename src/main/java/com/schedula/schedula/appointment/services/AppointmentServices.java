@@ -9,7 +9,7 @@ import com.schedula.schedula.enums.AppointmentStatus;
 import com.schedula.schedula.user.models.entities.User;
 
 public interface AppointmentServices {
-    AppointmentDTO createAppointment(AppointmentDTO appointmentDTO);
+    AppointmentDTO saveAppointment(AppointmentDTO appointmentDTO);
     AppointmentDTO updateAppointment(AppointmentDTO appointmentDTO);
     void deleteAppointment(Long id);
     AppointmentDTO getAppointmentById(Long id);

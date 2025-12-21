@@ -7,40 +7,40 @@ import java.util.List;
 
 import com.schedula.schedula.enums.AppointmentStatus;
 import com.schedula.schedula.notification.models.entities.Notification;
+import com.schedula.schedula.payment.models.entities.Payment;
+import com.schedula.schedula.providers.models.entities.Providers;
 import com.schedula.schedula.user.models.entities.User;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 @Entity
 @Table(name = "appointments")
-@Getter
-@Setter
+@Data
 public class Appointment {
-
-    @Id
+  @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long providerId;  
-
-    private LocalDate date;
-
-    private LocalTime time;
-
-    @Column(length = 300)
-    private String note;
-
-    @Enumerated(EnumType.STRING)
-    private AppointmentStatus status;
-    
-      // Many Appointments → One User
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-    // One Appointment → Many Notifications
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "provider_id", nullable = false)
+    private Providers provider;
+
+    private LocalDate date;
+    private LocalTime time;
+
+    @OneToOne(mappedBy = "appointment", cascade = CascadeType.ALL)
+    private Payment payment;
+
     @OneToMany(mappedBy = "appointment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Notification> notifications = new ArrayList<>();
+
+    @Enumerated(EnumType.STRING)
+    private AppointmentStatus status;
+
 
 }

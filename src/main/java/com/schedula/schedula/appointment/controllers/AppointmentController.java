@@ -45,7 +45,7 @@ public class AppointmentController {
     @Operation(summary = "إنشاء موعد جديد")
     public DynamicResponseEntity createAppointment(@Valid @RequestBody AppointmentDTO appointment) {
         try {
-            return new DynamicResponseEntity(HttpStatus.OK,null,appointmentService.createAppointment(appointment));
+            return new DynamicResponseEntity(HttpStatus.OK,null,appointmentService.saveAppointment(appointment));
         } catch (Exception e) {
             return new DynamicResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, null, "Error creating appointment");
         }

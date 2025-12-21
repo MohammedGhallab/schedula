@@ -17,11 +17,11 @@ import lombok.Data;
 public class AppointmentDTO {
     @Schema(description = "معرف الموعد قيمة فريدة", example = "205", accessMode = Schema.AccessMode.READ_ONLY)
     private Long id;
-    
+
     @NotNull(message = "المستخدم مطلوب")
     @Schema(description = "المستخدم", example = "بيانات المستخدم", accessMode = Schema.AccessMode.READ_ONLY)
     private UserDTO user;
-    
+
     @Schema(description = "معرف المزود قيمة فريدة", example = "55")
     private Long providerId;
 
@@ -37,10 +37,11 @@ public class AppointmentDTO {
 
     @Schema(description = "ملاحظات إضافية حول الموعد", example = "يرجى الحضور قبل الموعد بعشر دقائق")
     private String note;
-    
+
     @Schema(description = "حالة الموعد (مثل: PENDING, CONFIRMED, CANCELLED)", example = "PENDING")
     @NotNull(message = "الحالة مطلوب")
-    // @Pattern(regexp = "^(PENDING|CONFIRMED|CANCELLED)$", message = "يجب أن يكون النوع أحد القيم التالية: PENDING, CONFIRMED, CANCELLED")
+    // @Pattern(regexp = "^(PENDING|CONFIRMED|CANCELLED)$", message = "يجب أن يكون
+    // النوع أحد القيم التالية: PENDING, CONFIRMED, CANCELLED")
     private AppointmentStatus status;
 
     List<Notification> notifications = new ArrayList<>();

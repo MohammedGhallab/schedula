@@ -1,0 +1,19 @@
+package com.schedula.schedula.providers.models.dto;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.schedula.schedula.appointment.models.dto.AppointmentDTO;
+
+import lombok.Data;
+
+@Data
+public class ProvidersDTO {
+    private Long id;
+    private String name;
+    private String specialty;
+    private BigDecimal price;
+    private Boolean active = true;
+    private List<AppointmentDTO> appointments = new ArrayList<>();
+}

@@ -1,5 +1,11 @@
 package com.schedula.schedula.user.models.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.schedula.schedula.appointment.models.entities.Appointment;
+import com.schedula.schedula.notification.models.entities.Notification;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.Data;
@@ -28,9 +34,13 @@ public class UserDTO {
     @Pattern(regexp = "^\\d{10}$", message = "رقم الهاتف يجب أن يتكون من 10 أرقام")
     @Schema(description = "رقم الجوال", example = "0123456789")
     private String phone;
-    
+
     @Schema(description = "الصلاحيات الممنوحة للمستخدم", example = "ADMIN, CLIENT, PROVIDER")
     @NotBlank(message = "نوع المستخدم مطلوب")
     @Pattern(regexp = "^(ADMIN|CLIENT|PROVIDER)$", message = "يجب أن يكون النوع أحد القيم التالية قيمة واحدة فقط: ADMIN, CLIENT, PROVIDER")
     private String role;
+
+    private Boolean active;
+    private List<Appointment> appointments = new ArrayList<>();
+    private List<Notification> notifications = new ArrayList<>();
 }

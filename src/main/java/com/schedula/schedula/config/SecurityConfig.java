@@ -9,10 +9,8 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
         // 1. إيقاف حماية CSRF (مطلوب عند تعطيل الأمن مؤقتًا)
         http.csrf(csrf -> csrf.disable());
 

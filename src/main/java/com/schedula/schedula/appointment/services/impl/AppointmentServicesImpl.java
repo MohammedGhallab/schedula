@@ -22,7 +22,7 @@ public class AppointmentServicesImpl implements AppointmentServices {
     private AppointmentRepository appointmentRepository;
 
     @Override
-    public AppointmentDTO createAppointment(AppointmentDTO appointmentDTO) {
+    public AppointmentDTO saveAppointment(AppointmentDTO appointmentDTO) {
         Appointment appointment = appointmentMapper.toEntity(appointmentDTO);
         return appointmentMapper.toDTO(appointmentRepository.save(appointment));
     }

@@ -1,6 +1,7 @@
 package com.schedula.schedula.providers.services.impl;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -37,7 +38,7 @@ public class ProvidersServicesImpl implements ProvidersServices {
 
     @Override
     @Transactional(readOnly = true) // للبحث فقط، أسرع وأخف على قاعدة البيانات
-    public ProvidersDTO getProviderById(Long id) {
+    public ProvidersDTO getProviderById(UUID id) {
         return providersMapper.toDTO(providersRepository.findById(id).orElse(null));
     }
 

@@ -2,6 +2,7 @@ package com.schedula.schedula.payment.models.entities;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import com.schedula.schedula.appointment.models.entities.Appointment;
 import com.schedula.schedula.user.models.entities.User;
@@ -24,8 +25,9 @@ import lombok.Data;
 public class Payment {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", updatable = false, nullable = false)
+    private UUID id;
 
     @OneToOne
     @JoinColumn(name = "id", nullable = false, unique = true)

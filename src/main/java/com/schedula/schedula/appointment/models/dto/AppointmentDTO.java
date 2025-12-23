@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.schedula.schedula.enums.AppointmentStatus;
 import com.schedula.schedula.notification.models.entities.Notification;
@@ -18,7 +19,7 @@ import lombok.Data;
 @Data
 public class AppointmentDTO {
     @Schema(description = "معرف الموعد قيمة فريدة", example = "205", accessMode = Schema.AccessMode.READ_ONLY)
-    private Long id;
+    private UUID id;
 
     @NotNull(message = "المستخدم مطلوب")
     @Schema(description = "المستخدم", example = "بيانات المستخدم", accessMode = Schema.AccessMode.READ_ONLY)
@@ -42,8 +43,7 @@ public class AppointmentDTO {
     private Payment payment;
     @Schema(description = "حالة الموعد (مثل: PENDING, CONFIRMED, CANCELLED)", example = "PENDING")
     @NotNull(message = "الحالة مطلوب")
-    // @Pattern(regexp = "^(PENDING|CONFIRMED|CANCELLED)$", message = "يجب أن يكون
-    // النوع أحد القيم التالية: PENDING, CONFIRMED, CANCELLED")
+    @Pattern(regexp = "^(PENDING|CONFIRMED|CANCELLED)$", message = "يجب أن يكونالنوع أحد القيم التالية: PENDING, CONFIRMED, CANCELLED")
     private AppointmentStatus status;
 
     List<Notification> notifications = new ArrayList<>();

@@ -2,6 +2,7 @@ package com.schedula.schedula.user.models.dto;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.schedula.schedula.appointment.models.entities.Appointment;
 import com.schedula.schedula.notification.models.entities.Notification;
@@ -13,7 +14,7 @@ import lombok.Data;
 @Data
 public class UserDTO {
     @Schema(description = "معرف المستخدم قيمة فريدة", example = "105", accessMode = Schema.AccessMode.READ_ONLY)
-    private Long id;
+    private UUID id;
 
     @Schema(description = "اسم المستخدم الكامل", example = "أحمد محمد")
     @NotBlank(message = "الاسم لا يمكن أن يكون فارغاً")
@@ -25,6 +26,8 @@ public class UserDTO {
     @NotEmpty(message = "البريد الإلكتروني مطلوب")
     private String email;
 
+    @NotBlank(message = "اسم المستخدم مطلوب")
+    private String username;
     // يعني تظهر عند الإرسال فقط ولا تعود في الاستجابة
     @Schema(description = "كلمة المرور", example = "password123", accessMode = Schema.AccessMode.WRITE_ONLY)
     @NotBlank(message = "كلمة المرور مطلوبة")

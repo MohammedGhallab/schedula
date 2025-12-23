@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.schedula.schedula.enums.AppointmentStatus;
 import com.schedula.schedula.notification.models.entities.Notification;
@@ -19,28 +20,28 @@ import lombok.Data;
 @Data
 public class Appointment {
   @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @GeneratedValue(strategy = GenerationType.UUID)
+  @Column(name = "id", updatable = false, nullable = false)
+  private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", nullable = false)
+  private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "provider_id", nullable = false)
-    private Providers provider;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "provider_id", nullable = false)
+  private Providers provider;
 
-    private LocalDate date;
-    private LocalTime time;
-    private String note;
-    @OneToOne(mappedBy = "appointment", cascade = CascadeType.ALL)
-    private Payment payment;
+  private LocalDate date;
+  private LocalTime time;
+  private String note;
+  @OneToOne(mappedBy = "appointment", cascade = CascadeType.ALL)
+  private Payment payment;
 
-    @OneToMany(mappedBy = "appointment", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Notification> notifications = new ArrayList<>();
+  @OneToMany(mappedBy = "appointment", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Notification> notifications = new ArrayList<>();
 
-    @Enumerated(EnumType.STRING)
-    private AppointmentStatus status;
-
+  @Enumerated(EnumType.STRING)
+  private AppointmentStatus status;
 
 }

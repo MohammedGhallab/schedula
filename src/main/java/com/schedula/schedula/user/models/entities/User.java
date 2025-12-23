@@ -2,6 +2,7 @@ package com.schedula.schedula.user.models.entities;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.schedula.schedula.appointment.models.entities.Appointment;
 import com.schedula.schedula.notification.models.entities.Notification;
@@ -20,8 +21,9 @@ import lombok.Data;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", updatable = false, nullable = false)
+    private UUID id;
 
     @Column(nullable = false)
     @NotBlank(message = "الاسم لا يمكن أن يكون فارغاً")
@@ -36,7 +38,9 @@ public class User {
     @NotBlank(message = "كلمة المرور مطلوبة")
     @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,}$", message = "كلمة المرور ضعيفة! يجب أن تحتوي على 6 خانات على الأقل، تشمل أحرفاً وأرقاماً ورموزاً خاصة")
     private String password;
-
+    @Column
+    @NotBlank(message = "اسم المستخدم مطلوب")
+    private String username;
     @Column(nullable = false)
     @NotBlank(message = "الصلاحيات الممنوحة للمستخدم مطلوبة")
     @Pattern(regexp = "^(ADMIN|CLIENT|PROVIDER)$", message = "يجب أن يكون النوع أحد القيم التالية قيمة واحدة فقط: ADMIN, CLIENT, PROVIDER")

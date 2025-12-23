@@ -1,10 +1,12 @@
 package com.schedula.schedula.notification.models.entities;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import com.schedula.schedula.appointment.models.entities.Appointment;
 import com.schedula.schedula.user.models.entities.User;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -21,8 +23,9 @@ import lombok.Data;
 public class Notification {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", updatable = false, nullable = false)
+    private UUID id;
 
     private String channel; // SMS, EMAIL
 

@@ -1,5 +1,7 @@
 package com.schedula.schedula.user.services.impl;
 
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +19,7 @@ public class UserServicesImpl implements UserServices {
     private final UserRepository userRepository;
     @Override
     @Transactional(readOnly = true) // للبحث فقط، أسرع وأخف على قاعدة البيانات
-    public UserDTO getUserById(Long id, String details) {
+    public UserDTO getUserById(UUID id, String details) {
         return userMapper.toDTO(userRepository.findById(id).orElse(null));
     }
 

@@ -3,6 +3,7 @@ package com.schedula.schedula.providers.models.entities;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.schedula.schedula.appointment.models.entities.Appointment;
 
@@ -22,8 +23,9 @@ import lombok.Data;
 public class Providers {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", updatable = false, nullable = false)
+    private UUID id;
 
     @Column(nullable = false)
     private String name;

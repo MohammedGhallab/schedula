@@ -1,5 +1,7 @@
 package com.schedula.schedula.user.controllers;
 
+import java.util.UUID;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,7 +33,7 @@ public class UserController {
     @GetMapping("/{id}")
     @Operation(summary = "جلب بيانات مستخدم", description = "يقوم بإرجاع مستخدم بناءً على الرقم التعريفي")
     public UserDTO getUserById(
-            @Parameter(description = "الرقم التعريفي للمستخدم (يجب أن يكون رقمًا صحيحًا)", example = "105", required = true) @PathVariable Long id,
+            @Parameter(description = "الرقم التعريفي للمستخدم (يجب أن يكون رقمًا صحيحًا)", example = "105", required = true) @PathVariable UUID id,
             @Parameter(description = "تحديد مستوى التفاصيل (simple أو full)", example = "full") @RequestParam(defaultValue = "simple") String details) {
         return userServices.getUserById(id, details);
     }

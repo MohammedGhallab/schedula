@@ -25,6 +25,7 @@ public class JwtFilter extends OncePerRequestFilter {
     private final JWTService jwtService;
     private final TokenBlacklistService tokenBlacklistService;
     private final UserDetailsService userDetailsService;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
             HttpServletResponse response,
@@ -35,7 +36,10 @@ public class JwtFilter extends OncePerRequestFilter {
             // 1. استخراج التوكن من الكوكيز
             if (request.getCookies() != null) {
                 for (Cookie cookie : request.getCookies()) {
-                    if ("accessToken".equals(cookie.getName())) {
+                    System.out.println(
+                            "the error its it : " + ("token".equals(cookie.getName())) + "  : " + cookie.getName()
+                                    + " : " + cookie.getValue());
+                    if ("token".equals(cookie.getName())) {
                         token = cookie.getValue();
                         break;
                     }
@@ -62,7 +66,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 }
             }
         } catch (Exception e) {
-            log.error("تعذر ضبط توثيق المستخدم: {}", e.getMessage());
+            log.error("error doFilterInternal {}", e.getMessage());
         }
 
         filterChain.doFilter(request, response);

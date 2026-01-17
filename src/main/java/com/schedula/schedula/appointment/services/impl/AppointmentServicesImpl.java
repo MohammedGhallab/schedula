@@ -57,21 +57,21 @@ public class AppointmentServicesImpl implements AppointmentServices {
 
     @Override
     @Transactional(readOnly = true) // للبحث فقط، أسرع وأخف على قاعدة البيانات
-    public List<AppointmentDTO> getAppointmentsByUserId(Pageable page,User user) {
-       List<Appointment> appointments = appointmentRepository.findByUserId(user.getId()).findAll();
-       return appointmentMapper.toDTOList(appointments);
+    public List<AppointmentDTO> getAppointmentsByUserId(Pageable page, User user) {
+        List<Appointment> appointments = appointmentRepository.findByUserId(user.getId()).findAll();
+        return appointmentMapper.toDTOList(appointments);
     }
 
     @Override
     @Transactional(readOnly = true) // للبحث فقط، أسرع وأخف على قاعدة البيانات
-    public List<AppointmentDTO> getAppointmentsByProviderId(Pageable page,AppointmentDTO providerId) {
+    public List<AppointmentDTO> getAppointmentsByProviderId(Pageable page, AppointmentDTO providerId) {
         List<Appointment> appointments = appointmentRepository.findByProviderId(providerId.getId()).findAll();
         return appointmentMapper.toDTOList(appointments);
     }
 
     @Override
     @Transactional(readOnly = true) // للبحث فقط، أسرع وأخف على قاعدة البيانات
-    public List<AppointmentDTO> getAppointmentsByStatus(Pageable page,AppointmentStatus status) {
+    public List<AppointmentDTO> getAppointmentsByStatus(Pageable page, AppointmentStatus status) {
         List<Appointment> appointments = appointmentRepository.findByStatus(status).findAll();
         return appointmentMapper.toDTOList(appointments);
     }

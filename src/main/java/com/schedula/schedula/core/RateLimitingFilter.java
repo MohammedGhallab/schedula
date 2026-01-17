@@ -16,7 +16,7 @@ public class RateLimitingFilter implements Filter {
 
     private final ConcurrentHashMap<String, AtomicInteger> requestCounts = new ConcurrentHashMap<>();
     // private static final int MAX_REQUESTS_PER_MINUTE = 10;
-    private static final int MAX_REQUESTS_PER_MINUTE = 1000000000;
+    private static final int MAX_REQUESTS_PER_MINUTE = 10;
 
     public RateLimitingFilter() {
         // جدولة مهمة لتفريغ الخريطة كل 60 ثانية

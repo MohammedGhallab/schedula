@@ -5,12 +5,11 @@ import lombok.Data;
 @Data
 public class LoginResponse {
 
-    private String token;
-    private String type = "Bearer";
-    private String userName;
+    // private String token;
+    // private String type = "Bearer";
+    private String password;
     private String name;
     private String email;
     private String role;
     private Boolean active;
-
 }

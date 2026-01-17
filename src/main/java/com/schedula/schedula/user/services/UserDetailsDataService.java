@@ -9,8 +9,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.schedula.schedula.user.models.entities.User;
+import com.schedula.schedula.user.models.dto.LoginResponse;
 import com.schedula.schedula.user.repositories.UserRepository;
+import com.schedula.schedula.user.repositories.Projection.UserLoginProjection;
 
 @Service
 public class UserDetailsDataService implements UserDetailsService {
@@ -18,9 +19,15 @@ public class UserDetailsDataService implements UserDetailsService {
     private UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-
-        User user = userRepository.findByUsername(username).get();
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        UserLoginProjection userProjection = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User Not Found in Load"));
+        LoginResponse user = new LoginResponse();
+        user.setPassword(userProjection.getPassword());
+        user.setName(userProjection.getName());
+        user.setEmail(userProjection.getEmail());
+        user.setRole(userProjection.getRole());
+        user.setActive(userProjection.getActive());
         if (user.getActive() == false) {
             user = null;
         }
@@ -29,8 +36,9 @@ public class UserDetailsDataService implements UserDetailsService {
         }
 
         List<GrantedAuthority> authorities = new java.util.ArrayList<>();
-        // authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRoles().get(0)));
-        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
+        // authorities.add(new SimpleGrantedAuthority("ROLE_" +
+        // user.getRoles().get(0)));
+        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(),
                 authorities);
     }
 

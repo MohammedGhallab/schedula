@@ -27,6 +27,8 @@ import com.schedula.schedula.config.JWT.JwtFilter;
 // import com.schedula.schedula.core.CustomAccessDeniedHandler;
 import com.schedula.schedula.core.RateLimitingFilter;
 import com.schedula.schedula.user.services.UserDetailsDataService;
+
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -50,16 +52,15 @@ public class SecurityConfig {
                             .authenticationEntryPoint(
                                     ((request, response, authException) -> {
                                         // response.sendRedirect(env.getProperty("app.frontend.url") + "/401");
-                                        // response.sendError(
-                                        // 401,
-                                        // HttpServletResponse.SC_UNAUTHORIZED,
-                                        // authException.getMessage());
+                                        response.sendError(
+                                                HttpServletResponse.SC_UNAUTHORIZED,
+                                                authException.getMessage());
                                     })))
                     .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                     .sessionManagement(session -> session
                             .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                     .authorizeHttpRequests(auth -> auth
-                            .requestMatchers("/auth**","/**")
+                            .requestMatchers("/auth/**")
                             .permitAll()
                             .anyRequest().authenticated())
                     .addFilterBefore(

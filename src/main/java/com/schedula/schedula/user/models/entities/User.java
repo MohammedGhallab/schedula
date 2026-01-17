@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import com.schedula.schedula.appointment.models.entities.Appointment;
 import com.schedula.schedula.notification.models.entities.Notification;
+import com.schedula.schedula.providers.models.entities.Providers;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -23,6 +24,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", updatable = false, nullable = false)
+    // @Index
     private UUID id;
 
     @Column(nullable = false)
@@ -38,9 +40,6 @@ public class User {
     @NotBlank(message = "كلمة المرور مطلوبة")
     @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,}$", message = "كلمة المرور ضعيفة! يجب أن تحتوي على 6 خانات على الأقل، تشمل أحرفاً وأرقاماً ورموزاً خاصة")
     private String password;
-    @Column
-    @NotBlank(message = "اسم المستخدم مطلوب")
-    private String username;
     @Column(nullable = false)
     @NotBlank(message = "الصلاحيات الممنوحة للمستخدم مطلوبة")
     @Pattern(regexp = "^(ADMIN|CLIENT|PROVIDER)$", message = "يجب أن يكون النوع أحد القيم التالية قيمة واحدة فقط: ADMIN, CLIENT, PROVIDER")
@@ -50,6 +49,8 @@ public class User {
     @Column(nullable = false, unique = true)
     @Pattern(regexp = "^\\d{10}$", message = "رقم الهاتف يجب أن يحتوي على 10 أرقام")
     private String phone;
+
+
     // User 1 → Many Appointments
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Appointment> appointments = new ArrayList<>();
@@ -57,6 +58,9 @@ public class User {
     // User 1 → Many Notifications
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Notification> notifications = new ArrayList<>();
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Providers providers;
 
     @PrePersist
     private void defaultActive() {

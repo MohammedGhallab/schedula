@@ -25,9 +25,9 @@ public class ProvidersServicesImpl implements ProvidersServices {
     @Override
     @Transactional(rollbackFor = Exception.class) // تراجع في حال حدوث أي خطأ
     public ProvidersDTO saveProviders(ProvidersDTO providersDTO) {
-      Providers providers = providersMapper.toEntity(providersDTO);
-      providersRepository.save(providers);
-      return providersMapper.toDTO(providers);
+        Providers providers = providersMapper.toEntity(providersDTO);
+        providersRepository.save(providers);
+        return providersMapper.toDTO(providers);
     }
 
     @Override

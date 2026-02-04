@@ -1,5 +1,6 @@
 package com.schedula.schedula.providers.controllers;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,10 +27,16 @@ public class ProvidersController {
 
     private final ProvidersServices providerServices;
 
+    @GetMapping
+    @Operation(summary = "جلب بيانات جميع المزودين", description = "يقوم بإرجاع جميع المزودين بناءً على الرقم التعريفي")
+    public List<ProvidersDTO> getAllByUser() {
+        return providerServices.getAllProvidersByUser();
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "جلب بيانات مزود", description = "يقوم بإرجاع مزود بناءً على الرقم التعريفي")
-    public ProvidersDTO getProviderById(@PathVariable UUID id) {
-        return providerServices.getProviderById(id);
+    public ProvidersDTO getProviderById(@PathVariable String id) {
+        return providerServices.getProviderById(UUID.fromString(id));
     }
 
     @PostMapping
@@ -46,7 +53,7 @@ public class ProvidersController {
 
     @DeleteMapping
     @Operation(summary = "حذف مزود", description = "يقوم بحذف مزود بناءً على الرقم التعريفي")
-    public void deleteProvider(@RequestBody ProvidersDTO provider) {
-        providerServices.deleteProvider(provider);
+    public void deleteProvider(@RequestBody String provider) {
+        providerServices.deleteProvider(UUID.fromString(provider));
     }
 }

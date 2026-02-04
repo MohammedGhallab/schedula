@@ -7,6 +7,7 @@ import java.util.UUID;
 import com.schedula.schedula.appointment.models.entities.Appointment;
 import com.schedula.schedula.notification.models.entities.Notification;
 import com.schedula.schedula.providers.models.entities.Providers;
+import com.schedula.schedula.user.models.OnCreate;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
@@ -29,7 +30,7 @@ public class UserDTO {
 
     // يعني تظهر عند الإرسال فقط ولا تعود في الاستجابة
     @Schema(description = "كلمة المرور", example = "password123", accessMode = Schema.AccessMode.WRITE_ONLY)
-    @NotBlank(message = "كلمة المرور مطلوبة")
+    @NotBlank(message = "كلمة المرور مطلوبة", groups = OnCreate.class)
     // @Pattern(regexp =
     // "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,}$", message =
     // "كلمة المرور ضعيفة! يجب أن تحتوي على 6 خانات على الأقل، تشمل أحرفاً وأرقاماً
@@ -38,7 +39,7 @@ public class UserDTO {
 
     @Pattern(regexp = "^\\d{10}$", message = "رقم الهاتف يجب أن يتكون من 10 أرقام")
     @Schema(description = "رقم الجوال", example = "0123456789")
-    @NotBlank(message = "رقم الجوال مطلوب")
+    @NotBlank(message = "رقم الجوال مطلوب", groups = OnCreate.class)
     private String phone;
 
     @Schema(description = "الصلاحيات الممنوحة للمستخدم", example = "ADMIN, CLIENT, PROVIDER")
@@ -46,8 +47,8 @@ public class UserDTO {
     @Pattern(regexp = "^(ADMIN|CLIENT|PROVIDER)$", message = "يجب أن يكون النوع أحد القيم التالية قيمة واحدة فقط: ADMIN, CLIENT, PROVIDER")
     private String role;
     private Boolean active;
-    
-    private Providers providers;
+
+    private List<Providers> providers = new ArrayList<>();
     private List<Appointment> appointments = new ArrayList<>();
     private List<Notification> notifications = new ArrayList<>();
 }

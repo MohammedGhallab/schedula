@@ -1,7 +1,9 @@
 package com.schedula.schedula.user.controllers;
 
+import java.util.List;
 import java.util.UUID;
 
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.schedula.schedula.user.models.OnCreate;
 import com.schedula.schedula.user.models.dto.UserDTO;
 import com.schedula.schedula.user.services.UserServices;
 
@@ -38,9 +41,15 @@ public class UserController {
         return userServices.getUserById(id, details);
     }
 
+    @GetMapping
+    @Operation(summary = "جلب جميع المستخدمين")
+    public List<UserDTO> getAllUsers() {
+        return userServices.getAllUsers();
+    }
+
     @PostMapping
     @Operation(summary = "إنشاء مستخدم جديد")
-    public UserDTO createUser(@Valid @RequestBody UserDTO user) {
+    public UserDTO createUser(@Validated(OnCreate.class) @RequestBody UserDTO user) {
         return userServices.saveUser(user);
     }
 
@@ -52,7 +61,9 @@ public class UserController {
 
     @DeleteMapping
     @Operation(summary = "حذف المستخدم")
-    public void deleteUser(@RequestBody UserDTO id) {
-        userServices.deleteUser(id);
+    public boolean deleteUser(@RequestBody String id) {
+        userServices.deleteUser(UUID.fromString(id));
+        System.out.println("Hi He Is delete");
+        return true;
     }
 }

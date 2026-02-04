@@ -16,6 +16,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
@@ -90,9 +91,16 @@ public class SecurityConfig {
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsDataService);
-        provider.setPasswordEncoder(new BCryptPasswordEncoder(12));
-        // provider.setUserDetailsService(userDetailsDataService);
+        // ضبط مشفر كلمة المرور
+        provider.setPasswordEncoder(passwordEncoder());
+
         return provider;
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        // استخدم BCrypt الافتراضي لضمان مطابقة الـ Hash الموجود في قاعدة بياناتك
+        return new BCryptPasswordEncoder();
     }
 
     @Bean

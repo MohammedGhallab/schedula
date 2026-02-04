@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.schedula.schedula.appointment.models.entities.Appointment;
 import com.schedula.schedula.notification.models.entities.Notification;
 import com.schedula.schedula.providers.models.entities.Providers;
@@ -36,9 +37,13 @@ public class User {
     @Email(message = "يرجى إدخال بريد إلكتروني صحيح")
     @NotEmpty(message = "البريد الإلكتروني مطلوب")
     private String email;
+
     @Column(nullable = false)
     @NotBlank(message = "كلمة المرور مطلوبة")
-    @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,}$", message = "كلمة المرور ضعيفة! يجب أن تحتوي على 6 خانات على الأقل، تشمل أحرفاً وأرقاماً ورموزاً خاصة")
+    // @Pattern(regexp =
+    // "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,}$", message =
+    // "كلمة المرور ضعيفة! يجب أن تحتوي على 6 خانات على الأقل، تشمل أحرفاً وأرقاماً
+    // ورموزاً خاصة")
     private String password;
     @Column(nullable = false)
     @NotBlank(message = "الصلاحيات الممنوحة للمستخدم مطلوبة")
@@ -50,7 +55,6 @@ public class User {
     @Pattern(regexp = "^\\d{10}$", message = "رقم الهاتف يجب أن يحتوي على 10 أرقام")
     private String phone;
 
-
     // User 1 → Many Appointments
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Appointment> appointments = new ArrayList<>();
@@ -59,8 +63,9 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Notification> notifications = new ArrayList<>();
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private Providers providers;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference // الطرف القائد
+    private List<Providers> providers = new ArrayList<>();
 
     @PrePersist
     private void defaultActive() {

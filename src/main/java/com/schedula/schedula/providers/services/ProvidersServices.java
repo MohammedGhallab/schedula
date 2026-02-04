@@ -9,8 +9,14 @@ import com.schedula.schedula.providers.models.dto.ProvidersDTO;
 
 public interface ProvidersServices {
     ProvidersDTO saveProviders(ProvidersDTO providersDTO);
+
     List<ProvidersDTO> getAllProviders(Pageable page);
+
     ProvidersDTO getProviderById(UUID id);
+
     ProvidersDTO updateProvider(ProvidersDTO providersDTO);
-    void deleteProvider(ProvidersDTO id);
+
+    void deleteProvider(UUID id);
+
+    List<ProvidersDTO> getAllProvidersByUser();
 }

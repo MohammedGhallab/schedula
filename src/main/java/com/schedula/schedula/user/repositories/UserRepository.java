@@ -9,4 +9,6 @@ import com.schedula.schedula.user.repositories.Projection.UserLoginProjection;
 
 public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<UserLoginProjection> findByEmail(String email);
+
+    Optional<User> findByEmailAndActive(String email, boolean active);
 }

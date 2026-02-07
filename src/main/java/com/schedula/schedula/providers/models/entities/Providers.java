@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.schedula.schedula.appointment.models.entities.Appointment;
+import com.schedula.schedula.servicesProviders.models.entities.ServicesProviders;
 import com.schedula.schedula.user.models.entities.User;
 
 import jakarta.persistence.CascadeType;
@@ -42,6 +43,10 @@ public class Providers {
     @Column(nullable = false)
     private Boolean active = true;
 
+    // علاقة "واحد إلى متعدد"
+    // mappedBy تشير إلى اسم الحقل في كلاس Service
+    @OneToMany(mappedBy = "providers", cascade = CascadeType.ALL)
+    private List<ServicesProviders> services;
     @OneToMany(mappedBy = "provider", cascade = CascadeType.ALL)
     private List<Appointment> appointments = new ArrayList<>();
 

@@ -13,6 +13,7 @@ public interface AppointmentMapper {
     AppointmentDTO toDTO(Appointment appointment);
 
     @Mapping(target = "user.providers", ignore = true)
+    @Mapping(target = "provider.user", ignore = true)
     Appointment toEntity(AppointmentDTO dto);
 
     List<AppointmentDTO> toDTOList(List<Appointment> appointments);

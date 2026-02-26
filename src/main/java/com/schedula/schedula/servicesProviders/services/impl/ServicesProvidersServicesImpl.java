@@ -39,8 +39,11 @@ public class ServicesProvidersServicesImpl implements ServicesProvidersServices 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ServicesProvidersDTO createServicesProviders(ServicesProvidersDTO servicesProvidersDTO) {
-        return servicesProvidersMapper
-                .toDTO(servicesProvidersRepository.save(servicesProvidersMapper.toEntity(servicesProvidersDTO)));
+        ServicesProviders servicesProviders = servicesProvidersMapper.toEntity(servicesProvidersDTO);
+        servicesProviders.setId(null);
+        servicesProvidersRepository
+                .save(servicesProviders);
+        return servicesProvidersMapper.toDTO(servicesProviders);
     }
 
     @Override
@@ -52,6 +55,7 @@ public class ServicesProvidersServicesImpl implements ServicesProvidersServices 
         servicesProviders.setDescription(servicesProvidersDTO.getDescription());
         servicesProviders.setDuration(servicesProvidersDTO.getDuration());
         servicesProviders.setPrice(servicesProvidersDTO.getPrice());
+        // servicesProviders.setProviders(servicesProvidersDTO.getProviders());
         return servicesProvidersMapper.toDTO(servicesProvidersRepository.save(servicesProviders));
     }
 

@@ -3,8 +3,9 @@ package com.schedula.schedula.providers.services.impl;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -15,8 +16,8 @@ import com.schedula.schedula.providers.models.dto.ProvidersDTO;
 import com.schedula.schedula.providers.models.entities.Providers;
 import com.schedula.schedula.providers.repositories.ProvidersRepository;
 import com.schedula.schedula.providers.services.ProvidersServices;
+import com.schedula.schedula.user.CustomUserDetails;
 import com.schedula.schedula.user.models.entities.User;
-import com.schedula.schedula.user.services.UserServices;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,21 +27,24 @@ public class ProvidersServicesImpl implements ProvidersServices {
 
     private final ProvidersMapper providersMapper;
     private final ProvidersRepository providersRepository;
-    private final UserServices userServices;
 
     @Override
     @Transactional(rollbackFor = Exception.class) // تراجع في حال حدوث أي خطأ
+    @CacheEvict(value = "getAllProvidersByUserCache", keyGenerator = "userKeyGenerator")
     public ProvidersDTO saveProviders(ProvidersDTO providersDTO) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        // جلب الـ ID مباشرة من الـ Principal الذي وضعه الفلتر في الذاكرة
+        UUID userId = ((CustomUserDetails) auth.getPrincipal()).getId();
+
+        // ننشئ كائن "مرجعي" فقط للربط
         User user = new User();
-        if (!(authentication instanceof AnonymousAuthenticationToken)) {
-            String currentUserName = authentication.getName();
-            user = userServices.getUserByEmail(currentUserName);
-            System.out.println("currentUserName : " + currentUserName);
-        }
+        user.setId(userId);
+
         Providers providers = providersMapper.toEntity(providersDTO);
         providers.setUser(user);
         providersRepository.save(providers);
+
         return providersMapper.toDTO(providers);
     }
 
@@ -58,31 +62,38 @@ public class ProvidersServicesImpl implements ProvidersServices {
 
     @Override
     @Transactional(rollbackFor = Exception.class) // تراجع في حال حدوث أي خطأ
+    @CacheEvict(value = "getAllProvidersByUserCache", keyGenerator = "userKeyGenerator")
     public ProvidersDTO updateProvider(ProvidersDTO providersDTO) {
         Providers providers = providersRepository.findById(providersDTO.getId()).orElse(null);
         providers.setName(providersDTO.getName());
         providers.setPrice(providersDTO.getPrice());
         providers.setSpecialty(providersDTO.getSpecialty());
         providersRepository.save(providers);
-        System.out.println("providersDTO : " + providersDTO);
         return providersDTO;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class) // تراجع في حال حدوث أي خطأ
+    @CacheEvict(value = "getAllProvidersByUserCache", keyGenerator = "userKeyGenerator")
     public void deleteProvider(UUID data) {
         providersRepository.deleteById(data);
     }
 
     @Override
+    @Cacheable(value = "getAllProvidersByUserCache", keyGenerator = "userKeyGenerator")
     public List<ProvidersDTO> getAllProvidersByUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        // جلب الـ ID مباشرة من الـ Principal الذي وضعه الفلتر في الذاكرة
+        UUID userId = ((CustomUserDetails) auth.getPrincipal()).getId();
+
+        // ننشئ كائن "مرجعي" فقط للربط
         User user = new User();
-        if (!(authentication instanceof AnonymousAuthenticationToken)) {
-            String currentUserName = authentication.getName();
-            user = userServices.getUserByEmail(currentUserName);
-            System.out.println("currentUserName : " + currentUserName);
-        }
+        user.setId(userId);
+        // providersRepository.findAllByUser(user)
+        // استدعاء الـ Repository مع الـ JOIN FETCH الذي اتفقنا عليه
+        // TODO العمل على التحجيم
+        // Pageable page = PageRequest.of(0, 10);
         return providersMapper.toDTOList(providersRepository.findAllByUser(user));
     }
 

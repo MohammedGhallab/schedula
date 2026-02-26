@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.schedula.schedula.config.JWT.JWTService;
+import com.schedula.schedula.user.CustomUserDetails;
 import com.schedula.schedula.user.models.dto.LoginRequset;
-import com.schedula.schedula.user.models.dto.LoginResponse;
 import com.schedula.schedula.user.models.dto.UserDTO;
 import com.schedula.schedula.user.services.UserServices;
 
@@ -34,29 +34,46 @@ public class AuthController {
     private final JWTService jwtService;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequset data, HttpServletResponse response) {
-        LoginResponse login = userServices.login(data);
-        String token = jwtService.generateToken(login.getEmail(), false);
-        System.out.println("the token it : " + token);
-        Cookie cookie = new Cookie("token", token);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true); // HTTPS only
-        cookie.setPath("/");
-        if (data.getRememberMe())
-            cookie.setMaxAge(60 * 60 * 24 * 7); // 1 week
-        else
-            cookie.setMaxAge(60 * 60); // 1 hour
+    public ResponseEntity<CustomUserDetails> login(@Valid @RequestBody LoginRequset data,
+            HttpServletResponse response, HttpServletRequest request) {
+        String userInput = data.getCaptcha();
+        // جلب القيمة الأصلية التي خزنها السيرفر في الجلسة عند توليد الصورة
+        String sessionCaptcha = (String) request.getSession().getAttribute("captcha");
 
-        response.addCookie(cookie);
-        login.setPassword("Pass Is Hash");
-        return ResponseEntity.ok(login);
+        if (sessionCaptcha != null && sessionCaptcha.equalsIgnoreCase(userInput)) {
+            CustomUserDetails login = userServices.login(data);
+            // String token = jwtService.generateToken(login.getEmail(), false);
+            // SimpleGrantedAuthority authority = new
+            // SimpleGrantedAuthority(login.getRole());
+            String token = jwtService.generateToken(login);
+            Cookie cookie = new Cookie("token", token);
+            cookie.setHttpOnly(true);
+            cookie.setSecure(true); // HTTPS only
+            cookie.setPath("/");
+            if (data.getRememberMe())
+                cookie.setMaxAge(60 * 60 * 24 * 7); // 1 week
+            else
+                cookie.setMaxAge(60 * 60); // 1 hour
+
+            response.addCookie(cookie);
+            // login.setPassword("Pass Is Hash");
+            return ResponseEntity.ok(login);
+        } else
+            return ResponseEntity.status(422).body(null);
     }
 
     @PostMapping("/register")
     public ResponseEntity<UserDTO> register(@Valid @RequestBody UserDTO data, HttpServletResponse response) {
         data = userServices.saveUser(data);
         if (data.getId() != null) {
-            String token = jwtService.generateToken(data.getEmail(), false);
+            // SimpleGrantedAuthority authority = new SimpleGrantedAuthority(data.getRole());
+            String token = jwtService.generateToken(new CustomUserDetails(data.getId(),
+                    data.getEmail(),
+                    data.getPassword(),
+                    data.getActive(),
+                    data.getRole(),
+                    data.getName(),
+                    data.getEmail()));
             Cookie cookie = new Cookie("token", token);
             cookie.setHttpOnly(true);
             cookie.setSecure(true); // HTTPS only

@@ -1,13 +1,12 @@
 package com.schedula.schedula.user.services;
 
-import java.util.Collections;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import com.schedula.schedula.user.CustomUserDetails;
 import com.schedula.schedula.user.repositories.UserRepository;
 import com.schedula.schedula.user.repositories.Projection.UserLoginProjection;
 
@@ -19,26 +18,22 @@ public class UserDetailsDataService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        // 1. جلب البيانات باستخدام الـ Projection
+        // 1. جلب البيانات باستخدام الـ Projection (استعلام واحد فقط)
         UserLoginProjection userProjection = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
-        // 2. تحويل الدور (Role) إلى سلطة (Authority) يفهمها Spring Security
-        // ملاحظة: تأكد أن الـ Role في قاعدة البيانات مخزن بصيغة مثل "ROLE_USER" أو
-        // "ADMIN"
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(userProjection.getRole());
+        // 2. تحويل الدور إلى Authority
+        // SimpleGrantedAuthority authority = new SimpleGrantedAuthority(userProjection.getRole());
 
-        // 3. بناء كائن UserDetails
-        // نستخدم خاصية disabled لتمرير حالة النشاط
-        return org.springframework.security.core.userdetails.User.builder()
-                .username(userProjection.getEmail())
-                .password(userProjection.getPassword()) // كلمة المرور المشفرة من الـ DB
-                .authorities(Collections.singletonList(authority))
-                .disabled(!userProjection.getActive()) // إذا كان active هو false، سيكون الحساب disabled
-                .accountExpired(false)
-                .credentialsExpired(false)
-                .accountLocked(false)
-                .build();
+        // 3. إرجاع الكائن المخصص الذي يحمل "الاسم" و "الحالة"
+        return new CustomUserDetails(
+                userProjection.getId(),
+                userProjection.getEmail(),
+                userProjection.getPassword(),
+                userProjection.getActive(), // سيتم فحصها تلقائياً بواسطة Spring Security
+                userProjection.getRole(),
+                userProjection.getName(),
+                userProjection.getEmail());
     }
 }
 /*

@@ -6,9 +6,12 @@ import java.util.UUID;
 import com.schedula.schedula.appointment.models.entities.Appointment;
 import com.schedula.schedula.user.models.dto.UserDTO;
 
-import lombok.Data;
 
-@Data
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class NotificationDTO {
     private UUID id;
     private String channel;

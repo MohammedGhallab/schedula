@@ -2,6 +2,7 @@ package com.schedula.schedula.servicesProviders.models.entities;
 
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.schedula.schedula.providers.models.entities.Providers;
 
 import jakarta.persistence.Column;
@@ -15,16 +16,18 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "services_providers")
-@Data
+@Getter
+@Setter
 public class ServicesProviders {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    
+
     @Column(nullable = false)
     @NotBlank(message = "Name is required")
     private String name;
@@ -42,6 +45,7 @@ public class ServicesProviders {
     // علاقة "متعدد إلى واحد"
     @ManyToOne
     @JoinColumn(name = "provider_id", nullable = false) // هذا هو العمود الذي سيربط الجدولين في DB
+    @JsonBackReference
     private Providers providers;
 
     private String createdAt;

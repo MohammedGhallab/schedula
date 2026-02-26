@@ -10,10 +10,17 @@ import com.schedula.schedula.appointment.models.entities.Appointment;
 
 @Mapper(componentModel = "spring")
 public interface AppointmentMapper {
+
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "provider", ignore = true)
+    @Mapping(target = "payment", ignore = true)
+    @Mapping(target = "notifications", ignore = true)
     AppointmentDTO toDTO(Appointment appointment);
 
-    @Mapping(target = "user.providers", ignore = true)
-    @Mapping(target = "provider.user", ignore = true)
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "provider", ignore = true)
+    @Mapping(target = "payment", ignore = true)
+    @Mapping(target = "notifications", ignore = true)
     Appointment toEntity(AppointmentDTO dto);
 
     List<AppointmentDTO> toDTOList(List<Appointment> appointments);

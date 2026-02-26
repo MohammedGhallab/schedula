@@ -8,6 +8,8 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.schedula.schedula.user.CustomUserDetails;
+
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.security.NoSuchAlgorithmException;
@@ -15,10 +17,16 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
 @Service
 public class JWTService {
+    // 1. الثوابت في أعلى الكلاس
+    public static final String CLAIM_USER_ID = "userId";
+    public static final String CLAIM_ROLE = "role";
+    public static final String CLAIM_FULL_NAME = "fullName";
+    public static final String CLAIM_IS_ACTIVE = "isActive";
 
     @Value("${security.jwt.secret-key}")
     private String secretkey;
@@ -38,30 +46,48 @@ public class JWTService {
         }
     }
 
-    public String generateToken(String email, boolean rememberMe) {
-        Map<String, Object> claims = new HashMap<>();
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime()
-                + (rememberMe ? Long.parseLong(jwtRememberMeExpirationInMs) : Long.parseLong(jwtExpirationInMs)));
+    public String generateToken(CustomUserDetails userDetails) {
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put(CLAIM_USER_ID, userDetails.getId().toString());
+        extraClaims.put(CLAIM_ROLE, userDetails.getRole());
+        extraClaims.put(CLAIM_FULL_NAME, userDetails.getName());
+        extraClaims.put(CLAIM_IS_ACTIVE, userDetails.isEnabled());
+
         return Jwts.builder()
-                .claims()
-                .add(claims)
-                .subject(email)
-                .issuedAt(now)
-                .expiration(expiryDate)
-                .and()
+                .setClaims(extraClaims)
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24 ساعة
                 .signWith(getKey())
                 .compact();
-        /*
-         * Map<String, Object> claims = new HashMap<>();
-         * return Jwts.builder()
-         * .setClaims(claims)
-         * .setSubject(userDetails.getUsername())
-         * 
-         * .signWith(SignatureAlgorithm.HS512, secretkey)
-         * .compact();
-         */
     }
+    /*
+     * public String generateToken(String email, boolean rememberMe) {
+     * Map<String, Object> claims = new HashMap<>();
+     * Date now = new Date();
+     * Date expiryDate = new Date(now.getTime()
+     * + (rememberMe ? Long.parseLong(jwtRememberMeExpirationInMs) :
+     * Long.parseLong(jwtExpirationInMs)));
+     * return Jwts.builder()
+     * .claims()
+     * .add(claims)
+     * .subject(email)
+     * .issuedAt(now)
+     * .expiration(expiryDate)
+     * .and()
+     * .signWith(getKey())
+     * .compact();
+     * 
+     * Map<String, Object> claims = new HashMap<>();
+     * return Jwts.builder()
+     * .setClaims(claims)
+     * .setSubject(userDetails.getUsername())
+     * 
+     * .signWith(SignatureAlgorithm.HS512, secretkey)
+     * .compact();
+     * 
+     * }
+     */
 
     private SecretKey getKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretkey);
@@ -91,6 +117,31 @@ public class JWTService {
         return (extractedUsername.equals(username) && !isTokenExpired(token));
     }
 
+    // 1. استخراج الـ ID وتحويله إلى UUID
+    public UUID extractUserId(String token) {
+        String userId = extractClaim(token, claims -> claims.get(CLAIM_USER_ID, String.class));
+        return (userId != null) ? UUID.fromString(userId) : null;
+    }
+
+    // 2. استخراج الدور (Role)
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get(CLAIM_ROLE, String.class));
+    }
+
+    // 3. استخراج الاسم الكامل
+    public String extractFullName(String token) {
+        return extractClaim(token, claims -> claims.get(CLAIM_FULL_NAME, String.class));
+    }
+
+    // 4. استخراج حالة الحساب
+    public Boolean extractIsActive(String token) {
+        return extractClaim(token, claims -> claims.get(CLAIM_IS_ACTIVE, Boolean.class));
+    }
+
+    // 5. التحقق من صحة التوكن (بدون الحاجة لمقارنة بالـ DB)
+    public boolean isTokenValid(String token) {
+        return !isTokenExpired(token);
+    }
     // التحقق من صحة Token
     /*
      * public String checkToken(String token) {

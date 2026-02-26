@@ -11,9 +11,11 @@ import com.schedula.schedula.user.models.OnCreate;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class UserDTO {
     @Schema(description = "معرف المستخدم قيمة فريدة", example = "105", accessMode = Schema.AccessMode.READ_ONLY)
     private UUID id;
@@ -48,6 +50,7 @@ public class UserDTO {
     private String role;
     private Boolean active;
 
+    private Long countAll;
     private List<Providers> providers = new ArrayList<>();
     private List<Appointment> appointments = new ArrayList<>();
     private List<Notification> notifications = new ArrayList<>();

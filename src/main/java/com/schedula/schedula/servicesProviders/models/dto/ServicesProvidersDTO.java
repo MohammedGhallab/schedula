@@ -2,12 +2,16 @@ package com.schedula.schedula.servicesProviders.models.dto;
 
 import java.util.UUID;
 
+import com.schedula.schedula.providers.models.entities.Providers;
+
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class ServicesProvidersDTO {
     private UUID id;
     @NotBlank(message = "Name is required")
@@ -20,4 +24,5 @@ public class ServicesProvidersDTO {
     private String duration;
     @NotNull(message = "Active is required")
     private boolean active;
+    private Providers providers;
 }

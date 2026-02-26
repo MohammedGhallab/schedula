@@ -3,6 +3,8 @@ package com.schedula.schedula.user.controllers;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,8 +45,9 @@ public class UserController {
 
     @GetMapping
     @Operation(summary = "جلب جميع المستخدمين")
-    public List<UserDTO> getAllUsers() {
-        return userServices.getAllUsers();
+    public List<UserDTO> getAllUsers(@RequestParam int pageNumber, @RequestParam int pageSize) {
+        Pageable page = PageRequest.of(pageNumber, pageSize);
+        return userServices.getAllUsers(page);
     }
 
     @PostMapping
@@ -63,7 +66,6 @@ public class UserController {
     @Operation(summary = "حذف المستخدم")
     public boolean deleteUser(@RequestBody String id) {
         userServices.deleteUser(UUID.fromString(id));
-        System.out.println("Hi He Is delete");
         return true;
     }
 }

@@ -13,11 +13,13 @@ import com.schedula.schedula.providers.models.entities.Providers;
 import com.schedula.schedula.user.models.entities.User;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "appointments")
-@Data
+@Getter
+@Setter
 public class Appointment {
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)

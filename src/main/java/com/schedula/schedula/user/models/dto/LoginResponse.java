@@ -1,12 +1,14 @@
 package com.schedula.schedula.user.models.dto;
 
-import lombok.Data;
+import java.util.UUID;
 
-@Data
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class LoginResponse {
-
-    // private String token;
-    // private String type = "Bearer";
+    private UUID id;
     private String password;
     private String name;
     private String email;

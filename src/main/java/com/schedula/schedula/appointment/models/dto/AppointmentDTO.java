@@ -14,9 +14,11 @@ import com.schedula.schedula.user.models.dto.UserDTO;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class AppointmentDTO {
     @Schema(description = "معرف الموعد قيمة فريدة", example = "205", accessMode = Schema.AccessMode.READ_ONLY)
     private UUID id;

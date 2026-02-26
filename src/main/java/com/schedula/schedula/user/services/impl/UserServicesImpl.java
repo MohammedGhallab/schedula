@@ -2,7 +2,10 @@ package com.schedula.schedula.user.services.impl;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -10,13 +13,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.schedula.schedula.user.CustomUserDetails;
 import com.schedula.schedula.user.mapper.UserMapper;
 import com.schedula.schedula.user.models.dto.LoginRequset;
-import com.schedula.schedula.user.models.dto.LoginResponse;
 import com.schedula.schedula.user.models.dto.UserDTO;
 import com.schedula.schedula.user.models.entities.User;
 import com.schedula.schedula.user.repositories.UserRepository;
-import com.schedula.schedula.user.repositories.Projection.UserLoginProjection;
 import com.schedula.schedula.user.services.UserServices;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -27,7 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class UserServicesImpl implements UserServices {
     private final UserMapper userMapper;
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    private final BCryptPasswordEncoder encoder;
     private final AuthenticationManager authManager;
 
     @Override
@@ -38,8 +40,18 @@ public class UserServicesImpl implements UserServices {
 
     @Override
     @Transactional(readOnly = true) // للبحث فقط، أسرع وأخف على قاعدة البيانات
-    public List<UserDTO> getAllUsers() {
-        return userMapper.toDTOList(userRepository.findAll());
+    public List<UserDTO> getAllUsers(Pageable page) {
+        long start = System.currentTimeMillis();
+        Page<User> data = userRepository.findAll(page);
+
+        List<UserDTO> users = userMapper.toDTOList(data.getContent());
+
+        if (!users.isEmpty())
+            users.get(0).setCountAll(data.getTotalElements());
+        long end = System.currentTimeMillis();
+        System.out.println(TimeUnit.SECONDS.toMillis(1) +
+                " Process took: " + TimeUnit.MILLISECONDS.toMinutes((end - start)) + " m : " + (end - start) + " ms");
+        return users;
     }
 
     @Override
@@ -73,40 +85,25 @@ public class UserServicesImpl implements UserServices {
     }
 
     @Override
-    public LoginResponse login(LoginRequset data) {
-        UserLoginProjection userProjection = userRepository.findByEmail(data.getEmail())
-                .orElseThrow(() -> new RuntimeException("UserNotFound"));
-        System.out.println("print err : " + data.getPassword());
-        // cacheManager.getCache("findByUsername").clear();
-        if (userProjection != null) {
-            if (userProjection.getActive() == true) {
-                Authentication authentication = authManager
-                        .authenticate(new UsernamePasswordAuthenticationToken(data.getEmail(), data.getPassword()));
-                if (authentication.isAuthenticated()) {
-                    LoginResponse loginResponse = new LoginResponse();
-                    loginResponse.setPassword(userProjection.getPassword());
-                    loginResponse.setName(userProjection.getName());
-                    loginResponse.setEmail(userProjection.getEmail());
-                    loginResponse.setRole(userProjection.getRole());
-                    loginResponse.setActive(userProjection.getActive());
-                    return loginResponse;
-                    // String token = jwtService.generateToken(user.getUsername(),
-                    // user.isRememberMe());
-                    // return new ResponseEntity<String>(
-                    // token, HttpStatus.OK);
-                } else {
-                    throw new RuntimeException("InvalidPassword");
-                }
-            } else {
-                throw new RuntimeException("UserNotActive");
-            }
-        } else {
-            throw new RuntimeException("UserNotFound");
-        }
+    @Transactional(readOnly = true)
+    public CustomUserDetails login(LoginRequset data) {
+        // 1. المصادقة أولاً: Spring Security سيقوم بجلب المستخدم والتحقق من كلمة المرور
+        // والحالة (Active) في خطوة واحدة
+        // ملاحظة: يجب أن يكون الـ UserDetailsService لديك مهيأ ليرفض المستخدم غير
+        // المفعل
+        long start = System.currentTimeMillis();
+        Authentication authentication = authManager.authenticate(
+                new UsernamePasswordAuthenticationToken(data.getEmail(), data.getPassword()));
+        long end = System.currentTimeMillis();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
+        System.out.println(TimeUnit.SECONDS.toMillis(1) +
+                " Process took: " + TimeUnit.MILLISECONDS.toSeconds((end - start)) + " m : " + (end - start) + " ms");
+        return userDetails;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public User getUserByEmail(String email) {
         return userRepository.findByEmailAndActive(email, true).get();
     }

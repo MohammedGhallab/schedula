@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.schedula.schedula.appointment.models.entities.Appointment;
 import com.schedula.schedula.servicesProviders.models.entities.ServicesProviders;
 import com.schedula.schedula.user.models.entities.User;
@@ -21,11 +22,13 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "providers")
-@Data
+@Getter
+@Setter
 public class Providers {
 
     @Id
@@ -45,9 +48,10 @@ public class Providers {
 
     // علاقة "واحد إلى متعدد"
     // mappedBy تشير إلى اسم الحقل في كلاس Service
-    @OneToMany(mappedBy = "providers", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "providers", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference // الطرف القائد
     private List<ServicesProviders> services;
-    @OneToMany(mappedBy = "provider", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "provider", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Appointment> appointments = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)

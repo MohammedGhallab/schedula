@@ -1,4 +1,4 @@
-# 🗓️ Schedula API
+# 🗓️ Schedule API
 > A high-performance **RESTful API** built with **Spring Boot** and **PostgreSQL** for structured task scheduling and resource management.
 
 ![Java](https://img.shields.io/badge/Java-17-orange)

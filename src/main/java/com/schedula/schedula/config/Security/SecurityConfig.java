@@ -34,6 +34,7 @@ public class SecurityConfig {
 
     private final UserDetailsDataService userDetailsDataService;
     private final JwtFilter jwtFilter;
+    private final RateLimitingFilter rateLimitingFilter;
     private final Environment env;
 
     @Bean
@@ -60,8 +61,11 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/actuator/health").permitAll()
+                        .requestMatchers("/actuator/**").hasRole("ADMIN")
                         .requestMatchers("/auth/**").permitAll()
                         .anyRequest().authenticated())
+                .addFilterBefore(rateLimitingFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }

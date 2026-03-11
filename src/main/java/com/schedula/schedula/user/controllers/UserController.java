@@ -54,12 +54,14 @@ public class UserController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
+    @com.schedula.schedula.audit.annotations.Auditable(action = "USER_CREATED")
     public ResponseEntity<UserDTO> createUser(@Validated(OnCreate.class) @RequestBody UserDTO user) {
         return new ResponseEntity<>(userServices.saveUser(user), HttpStatus.CREATED);
     }
 
     @PutMapping
     @PreAuthorize("hasRole('ADMIN')")
+    @com.schedula.schedula.audit.annotations.Auditable(action = "USER_UPDATED")
     public ResponseEntity<UserDTO> updateUser(@Valid @RequestBody UserDTO user) {
         return ResponseEntity.ok(userServices.updateUser(user));
     }
@@ -67,6 +69,7 @@ public class UserController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "حذف مستخدم بواسطة المعرف")
+    @com.schedula.schedula.audit.annotations.Auditable(action = "USER_DELETED")
     public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
         userServices.deleteUser(id);
         return ResponseEntity.noContent().build(); // إرجاع 204 No Content

@@ -22,7 +22,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/providers")
+@RequestMapping("/api/v1/providers")
 @Tag(name = "إدارة المزودين", description = "عمليات إنشاء، تحديث، حذف، وجلب بيانات المزودين")
 @RequiredArgsConstructor
 public class ProvidersController {
@@ -30,25 +30,31 @@ public class ProvidersController {
     private final ProvidersServices providerServices;
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT', 'PROVIDER')")
     @Operation(summary = "جلب بيانات جميع المزودين", description = "يقوم بإرجاع جميع المزودين بناءً على الرقم التعريفي")
     public List<ProvidersDTO> getAllByUser() {
         return providerServices.getAllProvidersByUser();
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT', 'PROVIDER')")
     @Operation(summary = "جلب بيانات مزود", description = "يقوم بإرجاع مزود بناءً على الرقم التعريفي")
     public ProvidersDTO getProviderById(@PathVariable String id) {
         return providerServices.getProviderById(UUID.fromString(id));
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "إنشاء مزود جديد", description = "يقوم بإنشاء مزود جديد بناءً على البيانات المقدمة")
+    @com.schedula.schedula.audit.annotations.Auditable(action = "PROVIDER_CREATED")
     public ProvidersDTO createProvider(@Valid @RequestBody ProvidersDTO provider) {
         return providerServices.saveProviders(provider);
     }
 
     @PutMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'PROVIDER')")
     @Operation(summary = "تحديث مزود", description = "يقوم بتحديث مزود بناءً على البيانات المقدمة")
+    @com.schedula.schedula.audit.annotations.Auditable(action = "PROVIDER_UPDATED")
     public ProvidersDTO updateProvider(@Valid @RequestBody ProvidersDTO provider) {
         return providerServices.updateProvider(provider);
     }
@@ -56,6 +62,7 @@ public class ProvidersController {
     @DeleteMapping
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "حذف مزود", description = "يقوم بحذف مزود بناءً على الرقم التعريفي")
+    @com.schedula.schedula.audit.annotations.Auditable(action = "PROVIDER_DELETED")
     public void deleteProvider(@RequestBody UUID provider) {
         providerServices.deleteProvider(provider);
     }

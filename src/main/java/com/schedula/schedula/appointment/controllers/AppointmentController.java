@@ -22,31 +22,37 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/appointments")
+@RequestMapping("/api/v1/appointments")
 @Tag(name = "إدارة المواعيد", description = "عمليات إنشاء، تحديث، حذف، وجلب بيانات المواعيد")
 @RequiredArgsConstructor
 public class AppointmentController {
     private final AppointmentServices appointmentService;
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT', 'PROVIDER')")
     @Operation(summary = "جلب بيانات موعد", description = "يقوم بإرجاع موعد بناءً على الرقم التعريفي")
     public DynamicResponseEntity getAppointmentById(@PathVariable UUID id) {
         return new DynamicResponseEntity(HttpStatus.OK, null, appointmentService.getAppointmentById(id));
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
     @Operation(summary = "إنشاء موعد جديد")
+    @com.schedula.schedula.audit.annotations.Auditable(action = "APPOINTMENT_CREATED")
     public DynamicResponseEntity createAppointment(@Valid @RequestBody AppointmentDTO appointment) {
         return new DynamicResponseEntity(HttpStatus.OK, null, appointmentService.saveAppointment(appointment));
     }
 
     @PutMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
+    @com.schedula.schedula.audit.annotations.Auditable(action = "APPOINTMENT_UPDATED")
     public DynamicResponseEntity updateAppointment(@Valid @RequestBody AppointmentDTO entity) {
         return new DynamicResponseEntity(HttpStatus.OK, null, appointmentService.updateAppointment(entity));
     }
 
     @DeleteMapping
     @PreAuthorize("hasRole('ADMIN')")
+    @com.schedula.schedula.audit.annotations.Auditable(action = "APPOINTMENT_DELETED")
     public DynamicResponseEntity deleteAppointment(@RequestBody AppointmentDTO id) {
         appointmentService.deleteAppointment(id);
         return new DynamicResponseEntity(HttpStatus.OK, null, "Appointment deleted successfully");

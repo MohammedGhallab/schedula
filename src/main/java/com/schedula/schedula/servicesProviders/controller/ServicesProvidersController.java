@@ -22,6 +22,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 @RestController
 @RequestMapping("/api/v1/service-providers") // مسار معياري واحترافي
 @RequiredArgsConstructor
@@ -32,17 +34,20 @@ public class ServicesProvidersController {
 
     // جلب الكل - جعلنا المعرف اختيارياً أو أزلناه ليكون منطقياً
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT', 'PROVIDER')")
     public ResponseEntity<List<ServicesProvidersDTO>> getServicesProvidersById(@RequestParam(required = true) String filter) {
         return ResponseEntity.ok(servicesProvidersServices.getServicesProvidersById(UUID.fromString(filter)));
     }
 
     // جلب واحد - استخدام PathVariable بدلاً من Body
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT', 'PROVIDER')")
     public ResponseEntity<List<ServicesProvidersDTO>> getById(@PathVariable UUID id) {
         return ResponseEntity.ok(servicesProvidersServices.getServicesProvidersById(id));
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ServicesProvidersDTO> create(@Valid @RequestBody ServicesProvidersDTO dto) {
         ServicesProvidersDTO created = servicesProvidersServices.createServicesProviders(dto);
         // الحالة 201 تعني "تم الإنشاء بنجاح"
@@ -50,6 +55,7 @@ public class ServicesProvidersController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ServicesProvidersDTO> update(
             @PathVariable UUID id,
             @Valid @RequestBody ServicesProvidersDTO dto) {
@@ -58,6 +64,7 @@ public class ServicesProvidersController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         servicesProvidersServices.deleteServicesProviders(id);
         // الحالة 204 تعني "تم التنفيذ بنجاح ولا يوجد محتوى للإرجاع"

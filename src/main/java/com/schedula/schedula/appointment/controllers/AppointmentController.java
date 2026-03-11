@@ -1,8 +1,12 @@
 package com.schedula.schedula.appointment.controllers;
 
+import java.util.UUID;
+
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,9 +28,9 @@ import lombok.RequiredArgsConstructor;
 public class AppointmentController {
     private final AppointmentServices appointmentService;
 
-    @GetMapping
+    @GetMapping("/{id}")
     @Operation(summary = "جلب بيانات موعد", description = "يقوم بإرجاع موعد بناءً على الرقم التعريفي")
-    public DynamicResponseEntity getAppointmentById(@RequestBody AppointmentDTO id) {
+    public DynamicResponseEntity getAppointmentById(@PathVariable UUID id) {
         return new DynamicResponseEntity(HttpStatus.OK, null, appointmentService.getAppointmentById(id));
     }
 
@@ -42,6 +46,7 @@ public class AppointmentController {
     }
 
     @DeleteMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public DynamicResponseEntity deleteAppointment(@RequestBody AppointmentDTO id) {
         appointmentService.deleteAppointment(id);
         return new DynamicResponseEntity(HttpStatus.OK, null, "Appointment deleted successfully");

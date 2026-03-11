@@ -4,16 +4,14 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.schedula.schedula.user.CustomUserDetails;
 
-import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +19,7 @@ import java.util.UUID;
 import java.util.function.Function;
 
 @Service
+@RequiredArgsConstructor
 public class JWTService {
     // 1. الثوابت في أعلى الكلاس
     public static final String CLAIM_USER_ID = "userId";
@@ -35,16 +34,7 @@ public class JWTService {
 
     @Value("${app.jwt.remember-me-expiration-in-ms}")
     private String jwtRememberMeExpirationInMs;
-
-    public JWTService() {
-        try {
-            KeyGenerator keyGen = KeyGenerator.getInstance("HmacSHA256");
-            SecretKey sk = keyGen.generateKey();
-            secretkey = Base64.getEncoder().encodeToString(sk.getEncoded());
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    private final TokenBlacklistService blacklist;
 
     public String generateToken(CustomUserDetails userDetails) {
         Map<String, Object> extraClaims = new HashMap<>();
@@ -61,33 +51,6 @@ public class JWTService {
                 .signWith(getKey())
                 .compact();
     }
-    /*
-     * public String generateToken(String email, boolean rememberMe) {
-     * Map<String, Object> claims = new HashMap<>();
-     * Date now = new Date();
-     * Date expiryDate = new Date(now.getTime()
-     * + (rememberMe ? Long.parseLong(jwtRememberMeExpirationInMs) :
-     * Long.parseLong(jwtExpirationInMs)));
-     * return Jwts.builder()
-     * .claims()
-     * .add(claims)
-     * .subject(email)
-     * .issuedAt(now)
-     * .expiration(expiryDate)
-     * .and()
-     * .signWith(getKey())
-     * .compact();
-     * 
-     * Map<String, Object> claims = new HashMap<>();
-     * return Jwts.builder()
-     * .setClaims(claims)
-     * .setSubject(userDetails.getUsername())
-     * 
-     * .signWith(SignatureAlgorithm.HS512, secretkey)
-     * .compact();
-     * 
-     * }
-     */
 
     private SecretKey getKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretkey);
@@ -142,40 +105,10 @@ public class JWTService {
     public boolean isTokenValid(String token) {
         return !isTokenExpired(token);
     }
-    // التحقق من صحة Token
-    /*
-     * public String checkToken(String token) {
-     * try {
-     * Jws<Claims> claims = Jwts.parser()
-     * .setSigningKey(getKey())
-     * .build()
-     * .parseClaimsJws(token);
-     * 
-     * // التحقق من انتهاء الصلاحية
-     * if (claims.getBody().getExpiration().before(new Date())) {
-     * return null;
-     * }
-     * 
-     * return claims.getBody().getSubject(); // إرجاع اسم المستخدم
-     * } catch (SignatureException ex) {
-     * // توقيع غير صالح
-     * System.err.println("Invalid JWT signature");
-     * } catch (MalformedJwtException ex) {
-     * // Token غير صالح
-     * System.err.println("Invalid JWT token");
-     * } catch (ExpiredJwtException ex) {
-     * // Token منتهي الصلاحية
-     * System.err.println("Expired JWT token");
-     * } catch (UnsupportedJwtException ex) {
-     * // Token غير مدعوم
-     * System.err.println("Unsupported JWT token");
-     * } catch (IllegalArgumentException ex) {
-     * // Token فارغ
-     * System.err.println("JWT claims string is empty");
-     * }
-     * return null;
-     * }
-     */
+
+    public void addTokenBlacklist(String token) {
+        blacklist.addToBlacklist(token, 100000);
+    }
 
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());

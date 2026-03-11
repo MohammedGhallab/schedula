@@ -20,11 +20,10 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Component
 @RequiredArgsConstructor
-@Slf4j
+// @Slf4j
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JWTService jwtService;
@@ -40,7 +39,7 @@ public class JwtFilter extends OncePerRequestFilter {
             // 1. التحقق من وجود التوكن ومن القائمة السوداء
             if (token != null) {
                 if (tokenBlacklistService.isBlacklisted(token)) {
-                    log.warn("Token is blacklisted");
+                    // log.warn("Token is blacklisted");
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     return; // توقف هنا لأن التوكن مرفوض تماماً
                 }
@@ -74,13 +73,13 @@ public class JwtFilter extends OncePerRequestFilter {
                             
                             // 3. تثبيت التوثيق في السياق
                             SecurityContextHolder.getContext().setAuthentication(authToken);
-                            log.debug("Authenticated user: {}", username);
+                            // log.debug("Authenticated user: {}", username);
                         }
                     }
                 }
             }
         } catch (Exception e) {
-            log.error("Could not set user authentication in security context: {}", e.getMessage());
+            // log.error("Could not set user authentication in security context: {}", e.getMessage());
             // اختيارياً: يمكنك مسح الـ Context هنا
             SecurityContextHolder.clearContext();
         }

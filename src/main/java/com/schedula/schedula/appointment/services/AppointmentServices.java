@@ -1,6 +1,7 @@
 package com.schedula.schedula.appointment.services;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.domain.Pageable;
 
@@ -12,7 +13,7 @@ public interface AppointmentServices {
     AppointmentDTO saveAppointment(AppointmentDTO appointmentDTO);
     AppointmentDTO updateAppointment(AppointmentDTO appointmentDTO);
     void deleteAppointment(AppointmentDTO appointmentDTO);
-    AppointmentDTO getAppointmentById(AppointmentDTO id);
+    AppointmentDTO getAppointmentById(UUID id);
     List<AppointmentDTO> getAllAppointments(Pageable page);
     List<AppointmentDTO> getAppointmentsByUserId(Pageable page,User user);
     List<AppointmentDTO> getAppointmentsByProviderId(Pageable page,AppointmentDTO providerId);

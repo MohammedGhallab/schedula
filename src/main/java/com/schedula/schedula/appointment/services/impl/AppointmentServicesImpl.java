@@ -1,6 +1,7 @@
 package com.schedula.schedula.appointment.services.impl;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -44,8 +45,8 @@ public class AppointmentServicesImpl implements AppointmentServices {
 
     @Override
     @Transactional(readOnly = true) // للبحث فقط، أسرع وأخف على قاعدة البيانات
-    public AppointmentDTO getAppointmentById(AppointmentDTO id) {
-        return appointmentMapper.toDTO(appointmentRepository.findById(id.getId()).orElse(null));
+    public AppointmentDTO getAppointmentById(UUID id) {
+        return appointmentMapper.toDTO(appointmentRepository.findById(id).orElse(null));
     }
 
     @Override

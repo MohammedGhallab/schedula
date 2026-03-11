@@ -1,12 +1,6 @@
 package com.schedula.schedula.user.models.dto;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
-
-import com.schedula.schedula.appointment.models.entities.Appointment;
-import com.schedula.schedula.notification.models.entities.Notification;
-import com.schedula.schedula.providers.models.entities.Providers;
 import com.schedula.schedula.user.models.OnCreate;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -49,9 +43,4 @@ public class UserDTO {
     @Pattern(regexp = "^(ADMIN|CLIENT|PROVIDER)$", message = "يجب أن يكون النوع أحد القيم التالية قيمة واحدة فقط: ADMIN, CLIENT, PROVIDER")
     private String role;
     private Boolean active;
-
-    private Long countAll;
-    private List<Providers> providers = new ArrayList<>();
-    private List<Appointment> appointments = new ArrayList<>();
-    private List<Notification> notifications = new ArrayList<>();
 }

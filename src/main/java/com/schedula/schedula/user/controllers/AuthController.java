@@ -1,11 +1,15 @@
 package com.schedula.schedula.user.controllers;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.Map;
 import java.util.Random;
 import javax.imageio.ImageIO;
 import java.io.IOException;
+import java.security.SecureRandom;
+
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -66,7 +70,8 @@ public class AuthController {
     public ResponseEntity<UserDTO> register(@Valid @RequestBody UserDTO data, HttpServletResponse response) {
         data = userServices.saveUser(data);
         if (data.getId() != null) {
-            // SimpleGrantedAuthority authority = new SimpleGrantedAuthority(data.getRole());
+            // SimpleGrantedAuthority authority = new
+            // SimpleGrantedAuthority(data.getRole());
             String token = jwtService.generateToken(new CustomUserDetails(data.getId(),
                     data.getEmail(),
                     data.getPassword(),
@@ -81,13 +86,15 @@ public class AuthController {
             cookie.setMaxAge(60 * 60); // 1 hour
             response.addCookie(cookie);
         }
-        data.setPassword("Pass Is Hash");
+        data.setPassword(null);
         return ResponseEntity.ok(data);
     }
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletResponse response) {
+
         Cookie cookie = new Cookie("token", null);
+        jwtService.addTokenBlacklist(cookie.getValue());
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
         cookie.setPath("/");
@@ -127,7 +134,7 @@ public class AuthController {
     private String generateRandomText(int length) {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         StringBuilder sb = new StringBuilder();
-        Random random = new Random();
+        Random random = new SecureRandom();
         for (int i = 0; i < length; i++) {
             sb.append(chars.charAt(random.nextInt(chars.length())));
         }

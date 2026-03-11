@@ -5,64 +5,68 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.schedula.schedula.providers.mapper.ProvidersMapper;
-import com.schedula.schedula.providers.models.dto.ProvidersDTO;
 import com.schedula.schedula.servicesProviders.mapper.ServicesProvidersMapper;
 import com.schedula.schedula.servicesProviders.models.dto.ServicesProvidersDTO;
 import com.schedula.schedula.servicesProviders.models.entities.ServicesProviders;
 import com.schedula.schedula.servicesProviders.repositories.ServicesProvidersRepository;
 import com.schedula.schedula.servicesProviders.services.ServicesProvidersServices;
+
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class ServicesProvidersServicesImpl implements ServicesProvidersServices {
-    private final ServicesProvidersMapper servicesProvidersMapper;
-    private final ProvidersMapper providersMapper;
-    private final ServicesProvidersRepository servicesProvidersRepository;
+
+    private final ServicesProvidersRepository repository;
+    private final ServicesProvidersMapper mapper;
 
     @Override
     @Transactional(readOnly = true)
-    public List<ServicesProvidersDTO> getAllServicesProviders(ProvidersDTO data) {
-        return servicesProvidersRepository.findByProviders(providersMapper.toEntity(data)).stream()
-                .map(servicesProvidersMapper::toDTO).toList();
+    public List<ServicesProvidersDTO> getAllServicesProviders() {
+        // استخدام Stream مع Mapper في سطر واحد
+        return repository.findAll()
+                .stream()
+                .map(mapper::toDTO)
+                .toList();
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public ServicesProvidersDTO getServicesProvidersById(UUID id) {
-        return servicesProvidersRepository.findById(id).map(servicesProvidersMapper::toDTO)
-                .orElseThrow(() -> new RuntimeException("ServicesProviders not found"));
+    @Transactional
+    public ServicesProvidersDTO createServicesProviders(ServicesProvidersDTO dto) {
+        ServicesProviders entity = mapper.toEntity(dto);
+        entity.setId(null); // لضمان الإنشاء وليس التحديث
+        return mapper.toDTO(repository.save(entity));
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    public ServicesProvidersDTO createServicesProviders(ServicesProvidersDTO servicesProvidersDTO) {
-        ServicesProviders servicesProviders = servicesProvidersMapper.toEntity(servicesProvidersDTO);
-        servicesProviders.setId(null);
-        servicesProvidersRepository
-                .save(servicesProviders);
-        return servicesProvidersMapper.toDTO(servicesProviders);
+    @Transactional
+    public ServicesProvidersDTO updateServicesProviders(UUID id, ServicesProvidersDTO dto) {
+        // 1. البحث عن الكائن
+        ServicesProviders existingEntity = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("المزود غير موجود"));
+
+        // 2. استخدام MapStruct لتحديث الحقول تلقائياً
+        mapper.updateEntityFromDto(dto, existingEntity);
+
+        // 3. الحفظ والإرجاع
+        return mapper.toDTO(repository.save(existingEntity));
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    public ServicesProvidersDTO updateServicesProviders(ServicesProvidersDTO servicesProvidersDTO) {
-        ServicesProviders servicesProviders = servicesProvidersRepository.findById(servicesProvidersDTO.getId())
-                .orElseThrow(() -> new RuntimeException("ServicesProviders not found"));
-        servicesProviders.setActive(servicesProvidersDTO.isActive());
-        servicesProviders.setDescription(servicesProvidersDTO.getDescription());
-        servicesProviders.setDuration(servicesProvidersDTO.getDuration());
-        servicesProviders.setPrice(servicesProvidersDTO.getPrice());
-        // servicesProviders.setProviders(servicesProvidersDTO.getProviders());
-        return servicesProvidersMapper.toDTO(servicesProvidersRepository.save(servicesProviders));
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public void deleteServicesProviders(UUID id) {
-        servicesProvidersRepository.deleteById(id);
+        if (!repository.existsById(id)) {
+            throw new EntityNotFoundException("المزود غير موجود");
+        }
+        repository.deleteById(id);
     }
 
+    @Override
+    public List<ServicesProvidersDTO> getServicesProvidersById(UUID id) {
+        return repository.findByProvidersId(id)
+                .stream()
+                .map(mapper::toDTO)
+                .toList();
+    }
 }

@@ -1,19 +1,25 @@
 package com.schedula.schedula.config.JWT;
 
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.Set;
+import lombok.RequiredArgsConstructor;
+
+import java.time.Duration;
 
 @Service
+@RequiredArgsConstructor
 public class TokenBlacklistService {
-    private Set<String> blacklistedTokens = new HashSet<>();
-
-    public void addToBlacklist(String token) {
-        blacklistedTokens.add(token);
+    private final StringRedisTemplate redisTemplate;
+    
+    public void addToBlacklist(String token, long expirationMs) {
+        redisTemplate.opsForValue().set(
+            "blacklist:" + token, "1", 
+            Duration.ofMillis(expirationMs));
     }
-
+    
     public boolean isBlacklisted(String token) {
-        return blacklistedTokens.contains(token);
+        return Boolean.TRUE.equals(redisTemplate.hasKey("blacklist:" + token));
     }
 }
+

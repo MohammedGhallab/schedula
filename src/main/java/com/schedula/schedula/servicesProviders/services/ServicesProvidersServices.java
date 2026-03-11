@@ -3,17 +3,18 @@ package com.schedula.schedula.servicesProviders.services;
 import java.util.List;
 import java.util.UUID;
 
-import com.schedula.schedula.providers.models.dto.ProvidersDTO;
 import com.schedula.schedula.servicesProviders.models.dto.ServicesProvidersDTO;
 
 public interface ServicesProvidersServices {
-    List<ServicesProvidersDTO> getAllServicesProviders(ProvidersDTO data);
+    // جلب الكل بناءً على المعرف (أو بدون فلتر)
+    List<ServicesProvidersDTO> getAllServicesProviders();
 
-    ServicesProvidersDTO getServicesProvidersById(UUID id);
+    List<ServicesProvidersDTO> getServicesProvidersById(UUID id);
 
-    ServicesProvidersDTO createServicesProviders(ServicesProvidersDTO servicesProvidersDTO);
+    ServicesProvidersDTO createServicesProviders(ServicesProvidersDTO dto);
 
-    ServicesProvidersDTO updateServicesProviders(ServicesProvidersDTO servicesProvidersDTO);
+    // تحديث يستقبل المعرف بشكل منفصل لضمان عدم التلاعب بالبيانات
+    ServicesProvidersDTO updateServicesProviders(UUID id, ServicesProvidersDTO dto);
 
     void deleteServicesProviders(UUID id);
 }

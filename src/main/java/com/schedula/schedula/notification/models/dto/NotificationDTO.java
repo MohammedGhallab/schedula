@@ -14,8 +14,10 @@ import lombok.Setter;
 @Setter
 public class NotificationDTO {
     private UUID id;
-    private String channel;
+    private String title;
     private String message;
+    private String channel;
+    private boolean isRead;
     private LocalDateTime sentAt;
     private UserDTO user;
     private Appointment appointment;

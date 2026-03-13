@@ -35,9 +35,8 @@ public class ServicesProviders {
     @Column(nullable = false)
     private boolean active;
 
-    // علاقة "متعدد إلى واحد"
     @ManyToOne
-    @JoinColumn(name = "provider_id", nullable = false) // هذا هو العمود الذي سيربط الجدولين في DB
+    @JoinColumn(name = "provider_id", nullable = false)
     @JsonBackReference
     private Providers providers;
 

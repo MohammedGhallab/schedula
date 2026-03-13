@@ -11,13 +11,11 @@ import com.schedula.schedula.notification.models.entities.Notification;
 @Mapper(componentModel = "spring")
 public interface NotificationMapper {
 
-    // @Mapping(target = "id", source = "id")
-    // @Mapping(target = "userId", source = "user.id")
-    // NotificationDTO toDTO(Notification notification);
-
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "appointment", ignore = true)
     Notification toEntity(NotificationDTO dto);
+
+    NotificationDTO toDTO(Notification notification);
 
     List<NotificationDTO> toDTOList(List<Notification> list);
 }

@@ -25,7 +25,7 @@ public interface UserMapper {
     @Mapping(target = "notifications", ignore = true)
     List<UserDTO> toDTOList(List<User> users);
 
-    @Mapping(target = "password", ignore = true) // سيتم تجاهل كلمة المرور ولن تنقل للـ DTO
+    @Mapping(target = "password", ignore = true)
     @Mapping(target = "providers", ignore = true)
     @Mapping(target = "appointments", ignore = true)
     @Mapping(target = "notifications", ignore = true)

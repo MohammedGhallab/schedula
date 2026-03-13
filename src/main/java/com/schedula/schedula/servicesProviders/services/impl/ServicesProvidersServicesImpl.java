@@ -24,7 +24,7 @@ public class ServicesProvidersServicesImpl implements ServicesProvidersServices 
     @Override
     @Transactional(readOnly = true)
     public List<ServicesProvidersDTO> getAllServicesProviders() {
-        // استخدام Stream مع Mapper في سطر واحد
+
         return repository.findAll()
                 .stream()
                 .map(mapper::toDTO)
@@ -35,21 +35,19 @@ public class ServicesProvidersServicesImpl implements ServicesProvidersServices 
     @Transactional
     public ServicesProvidersDTO createServicesProviders(ServicesProvidersDTO dto) {
         ServicesProviders entity = mapper.toEntity(dto);
-        entity.setId(null); // لضمان الإنشاء وليس التحديث
+        entity.setId(null);
         return mapper.toDTO(repository.save(entity));
     }
 
     @Override
     @Transactional
     public ServicesProvidersDTO updateServicesProviders(UUID id, ServicesProvidersDTO dto) {
-        // 1. البحث عن الكائن
+
         ServicesProviders existingEntity = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("المزود غير موجود"));
 
-        // 2. استخدام MapStruct لتحديث الحقول تلقائياً
         mapper.updateEntityFromDto(dto, existingEntity);
 
-        // 3. الحفظ والإرجاع
         return mapper.toDTO(repository.save(existingEntity));
     }
 

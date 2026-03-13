@@ -15,12 +15,11 @@ import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 @Configuration
-// @EnableCaching
 public class CacheConfig {
 
     @Bean
     public RedisCacheConfiguration cacheConfiguration() {
-        // إنشاء ObjectMapper مخصص للتعامل مع التواريخ وغيرها بشكل سليم
+
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         BasicPolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()

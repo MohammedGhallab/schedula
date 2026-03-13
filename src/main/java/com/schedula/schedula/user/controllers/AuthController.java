@@ -22,6 +22,7 @@ import com.schedula.schedula.user.models.dto.LoginRequset;
 import com.schedula.schedula.user.models.dto.UserDTO;
 import com.schedula.schedula.user.services.UserServices;
 
+import org.springframework.security.web.csrf.CsrfToken;
 import jakarta.servlet.http.Cookie;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -46,14 +47,18 @@ public class AuthController {
     public ResponseEntity<CustomUserDetails> login(@Valid @RequestBody LoginRequset data,
             HttpServletResponse response, HttpServletRequest request) {
         String userInput = data.getCaptcha();
-        // جلب القيمة الأصلية التي خزنها السيرفر في الجلسة عند توليد الصورة
+
         String sessionCaptcha = (String) request.getSession().getAttribute("captcha");
+
+        CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        if (csrfToken != null) {
+            response.setHeader(csrfToken.getHeaderName(), csrfToken.getToken());
+        }
 
         if (sessionCaptcha != null && sessionCaptcha.equalsIgnoreCase(userInput)) {
             CustomUserDetails login = userServices.login(data);
             String token = jwtService.generateToken(login);
 
-            // استخدام ResponseCookie مع SameSite
             ResponseCookie cookie = ResponseCookie.from("token", token)
                     .httpOnly(true)
                     .secure(true)
@@ -72,16 +77,15 @@ public class AuthController {
     public ResponseEntity<UserDTO> register(@Valid @RequestBody UserDTO data, HttpServletResponse response) {
         data = userServices.saveUser(data);
         if (data.getId() != null) {
-            // ✅ لا نمرر كلمة المرور المشفرة - نستخدم سلسلة فارغة بدلاً من ذلك
+
             String token = jwtService.generateToken(new CustomUserDetails(data.getId(),
                     data.getEmail(),
-                    "", // لا نكشف الهاش
+                    "",
                     data.getActive(),
                     data.getRole(),
                     data.getName(),
                     data.getEmail()));
 
-            // استخدام ResponseCookie مع SameSite
             ResponseCookie cookie = ResponseCookie.from("token", token)
                     .httpOnly(true)
                     .secure(true)
@@ -97,13 +101,11 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
-        // ✅ استخراج التوكن الفعلي من الكوكيز قبل إضافته للقائمة السوداء
+
         String token = extractTokenFromCookies(request);
         if (token != null) {
             jwtService.addTokenBlacklist(token);
         }
-
-        // حذف الكوكي من المتصفح
         ResponseCookie cookie = ResponseCookie.from("token", "")
                 .httpOnly(true)
                 .secure(true)
@@ -118,6 +120,12 @@ public class AuthController {
 
     @GetMapping("/api/captcha")
     public void getCaptcha(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+        CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        if (csrfToken != null) {
+            csrfToken.getToken();
+        }
+
         String captchaText = generateRandomText(5);
         request.getSession().setAttribute("captcha", captchaText);
 
@@ -130,20 +138,15 @@ public class AuthController {
     @PostMapping("/api/verify-captcha")
     public ResponseEntity<?> verifyCaptcha(@RequestBody Map<String, String> payload, HttpServletRequest request) {
         String userInput = payload.get("captchaInput");
-        // جلب القيمة الأصلية التي خزنها السيرفر في الجلسة عند توليد الصورة
         String sessionCaptcha = (String) request.getSession().getAttribute("captcha");
 
         if (sessionCaptcha != null && sessionCaptcha.equalsIgnoreCase(userInput)) {
-            // في حال التطابق
             return ResponseEntity.ok(Map.of("success", true, "message", "تم التحقق بنجاح"));
         } else {
-            // في حال الخطأ
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("success", false, "message", "رمز التحقق غير صحيح"));
         }
     }
-
-    // دالة لتوليد نص عشوائي
     private String generateRandomText(int length) {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         StringBuilder sb = new StringBuilder();
@@ -154,18 +157,15 @@ public class AuthController {
         return sb.toString();
     }
 
-    // دالة لتحويل النص إلى صورة (BufferedImage)
     private BufferedImage createCaptchaImage(String text) {
         int width = 150;
         int height = 50;
         BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = img.createGraphics();
 
-        // خلفية الصورة
         g2d.setColor(Color.WHITE);
         g2d.fillRect(0, 0, width, height);
 
-        // إضافة خطوط عشوائية (Noise) لمنع الـ Bots
         g2d.setColor(Color.LIGHT_GRAY);
         SecureRandom random = new SecureRandom();
         for (int i = 0; i < 10; i++) {
@@ -176,7 +176,6 @@ public class AuthController {
             g2d.drawLine(x1, y1, x2, y2);
         }
 
-        // كتابة النص
         g2d.setFont(new Font("Arial", Font.BOLD, 24));
         g2d.setColor(Color.BLUE);
         g2d.drawString(text, 25, 35);

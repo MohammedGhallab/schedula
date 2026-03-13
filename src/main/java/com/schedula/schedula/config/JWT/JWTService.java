@@ -21,7 +21,7 @@ import java.util.function.Function;
 @Service
 @RequiredArgsConstructor
 public class JWTService {
-    // 1. الثوابت في أعلى الكلاس
+
     public static final String CLAIM_USER_ID = "userId";
     public static final String CLAIM_ROLE = "role";
     public static final String CLAIM_FULL_NAME = "fullName";
@@ -47,7 +47,7 @@ public class JWTService {
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24 ساعة
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
                 .signWith(getKey())
                 .compact();
     }
@@ -58,7 +58,7 @@ public class JWTService {
     }
 
     public String extractUserName(String token) {
-        // extract the username from jwt token
+
         return extractClaim(token, Claims::getSubject);
     }
 
@@ -80,28 +80,24 @@ public class JWTService {
         return (extractedUsername.equals(username) && !isTokenExpired(token));
     }
 
-    // 1. استخراج الـ ID وتحويله إلى UUID
     public UUID extractUserId(String token) {
         String userId = extractClaim(token, claims -> claims.get(CLAIM_USER_ID, String.class));
         return (userId != null) ? UUID.fromString(userId) : null;
     }
 
-    // 2. استخراج الدور (Role)
+
     public String extractRole(String token) {
         return extractClaim(token, claims -> claims.get(CLAIM_ROLE, String.class));
     }
 
-    // 3. استخراج الاسم الكامل
     public String extractFullName(String token) {
         return extractClaim(token, claims -> claims.get(CLAIM_FULL_NAME, String.class));
     }
 
-    // 4. استخراج حالة الحساب
     public Boolean extractIsActive(String token) {
         return extractClaim(token, claims -> claims.get(CLAIM_IS_ACTIVE, Boolean.class));
     }
 
-    // 5. التحقق من صحة التوكن (بدون الحاجة لمقارنة بالـ DB)
     public boolean isTokenValid(String token) {
         return !isTokenExpired(token);
     }

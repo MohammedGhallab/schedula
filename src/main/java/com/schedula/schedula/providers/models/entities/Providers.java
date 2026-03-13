@@ -46,10 +46,8 @@ public class Providers {
     @Column(nullable = false)
     private Boolean active = true;
 
-    // علاقة "واحد إلى متعدد"
-    // mappedBy تشير إلى اسم الحقل في كلاس Service
     @OneToMany(mappedBy = "providers", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference // الطرف القائد
+    @JsonManagedReference
     private List<ServicesProviders> services;
     @OneToMany(mappedBy = "provider", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Appointment> appointments = new ArrayList<>();

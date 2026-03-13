@@ -24,13 +24,8 @@ public class UserDTO {
     @NotBlank(message = "البريد الإلكتروني مطلوب")
     private String email;
 
-    // يعني تظهر عند الإرسال فقط ولا تعود في الاستجابة
     @Schema(description = "كلمة المرور", example = "password123", accessMode = Schema.AccessMode.WRITE_ONLY)
     @NotBlank(message = "كلمة المرور مطلوبة", groups = OnCreate.class)
-    // @Pattern(regexp =
-    // "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,}$", message =
-    // "كلمة المرور ضعيفة! يجب أن تحتوي على 6 خانات على الأقل، تشمل أحرفاً وأرقاماً
-    // ورموزاً خاصة")
     private String password;
 
     @Pattern(regexp = "^\\d{10}$", message = "رقم الهاتف يجب أن يتكون من 10 أرقام")

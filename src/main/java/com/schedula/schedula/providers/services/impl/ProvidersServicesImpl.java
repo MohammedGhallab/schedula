@@ -29,15 +29,13 @@ public class ProvidersServicesImpl implements ProvidersServices {
     private final ProvidersRepository providersRepository;
 
     @Override
-    @Transactional(rollbackFor = Exception.class) // تراجع في حال حدوث أي خطأ
+    @Transactional
     @CacheEvict(value = "getAllProvidersByUserCache", keyGenerator = "userKeyGenerator")
     public ProvidersDTO saveProviders(ProvidersDTO providersDTO) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        // جلب الـ ID مباشرة من الـ Principal الذي وضعه الفلتر في الذاكرة
         UUID userId = ((CustomUserDetails) auth.getPrincipal()).getId();
 
-        // ننشئ كائن "مرجعي" فقط للربط
         User user = new User();
         user.setId(userId);
 
@@ -49,19 +47,19 @@ public class ProvidersServicesImpl implements ProvidersServices {
     }
 
     @Override
-    @Transactional(readOnly = true) // للبحث فقط، أسرع وأخف على قاعدة البيانات
+    @Transactional(readOnly = true)
     public List<ProvidersDTO> getAllProviders(Pageable page) {
         return providersMapper.toDTOList(providersRepository.findAll(page).getContent());
     }
 
     @Override
-    @Transactional(readOnly = true) // للبحث فقط، أسرع وأخف على قاعدة البيانات
+    @Transactional(readOnly = true)
     public ProvidersDTO getProviderById(UUID id) {
         return providersMapper.toDTO(providersRepository.findById(id).orElse(null));
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class) // تراجع في حال حدوث أي خطأ
+    @Transactional
     @CacheEvict(value = "getAllProvidersByUserCache", keyGenerator = "userKeyGenerator")
     public ProvidersDTO updateProvider(ProvidersDTO providersDTO) {
         Providers providers = providersRepository.findById(providersDTO.getId()).orElse(null);
@@ -73,7 +71,7 @@ public class ProvidersServicesImpl implements ProvidersServices {
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class) // تراجع في حال حدوث أي خطأ
+    @Transactional
     @CacheEvict(value = "getAllProvidersByUserCache", keyGenerator = "userKeyGenerator")
     public void deleteProvider(UUID data) {
         providersRepository.deleteById(data);
@@ -84,14 +82,10 @@ public class ProvidersServicesImpl implements ProvidersServices {
     public List<ProvidersDTO> getAllProvidersByUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        // جلب الـ ID مباشرة من الـ Principal الذي وضعه الفلتر في الذاكرة
         UUID userId = ((CustomUserDetails) auth.getPrincipal()).getId();
 
-        // ننشئ كائن "مرجعي" فقط للربط
         User user = new User();
         user.setId(userId);
-        // providersRepository.findAllByUser(user)
-        // استدعاء الـ Repository مع الـ JOIN FETCH الذي اتفقنا عليه
         // TODO العمل على التحجيم
         // Pageable page = PageRequest.of(0, 10);
         return providersMapper.toDTOList(providersRepository.findAllByUser(user));

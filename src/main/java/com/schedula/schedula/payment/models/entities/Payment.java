@@ -43,10 +43,10 @@ public class Payment {
     private BigDecimal amount;
 
     @Column(length = 30)
-    private String method; // CARD, CASH, WALLET
+    private String method;
 
     @Column(length = 30)
-    private String status; // PENDING, PAID, FAILED
+    private String status;
 
     private String transactionRef;
 

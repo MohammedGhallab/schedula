@@ -10,12 +10,12 @@ import com.schedula.schedula.servicesProviders.models.entities.ServicesProviders
 @Mapper(componentModel = "spring")
 public interface ServicesProvidersMapper {
 
-    @Mapping(target = "providers", ignore = true) // نمنع تحويل الـ providers هنا
+    @Mapping(target = "providers", ignore = true)
     ServicesProvidersDTO toDTO(ServicesProviders servicesProviders);
 
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "providers", ignore = true) // نمنع تحويل الـ providers هنا
+    @Mapping(target = "providers", ignore = true)
     ServicesProviders toEntity(ServicesProvidersDTO servicesProvidersDTO);
 
     @Mapping(target = "createdAt", ignore = true)

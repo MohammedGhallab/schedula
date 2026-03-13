@@ -27,21 +27,19 @@ public class AuditAspect {
     public void logAuditActivity(JoinPoint joinPoint, Auditable auditable) {
         String userEmail = "Anonymous";
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated() && !authentication.getPrincipal().equals("anonymousUser")) {
+        if (authentication != null && authentication.isAuthenticated()
+                && !authentication.getPrincipal().equals("anonymousUser")) {
             userEmail = authentication.getName();
         }
 
         HttpServletRequest request = null;
-        try {
-            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
-            request = attributes.getRequest();
-        } catch (Exception e) {
-            // Not in a web context
-        }
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder
+                .currentRequestAttributes();
+        request = attributes.getRequest();
 
         String ipAddress = "Unknown";
         String details = "No Request Info";
-        
+
         if (request != null) {
             ipAddress = request.getHeader("X-Forwarded-For");
             if (ipAddress == null) {

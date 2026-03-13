@@ -29,17 +29,17 @@ public class Notification {
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
-    private String channel; // SMS, EMAIL
-
+    private String title;
     private String message;
-
+    private String channel;
+    private boolean isRead = false;
     private LocalDateTime sentAt;
-    // Many Notifications → One User
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    // Many Notifications → One Appointment (اختياري)
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "appointment_id")
     private Appointment appointment;

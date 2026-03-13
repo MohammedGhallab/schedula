@@ -16,9 +16,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter // توليد الـ Getters فقط
-@Setter // توليد الـ Setters فقط
-@NoArgsConstructor // مشيد فارغ ضروري لـ JPA
+@Getter
+@Setter
+@NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "users", indexes = {
@@ -40,25 +40,23 @@ public class User {
     @Column(nullable = false)
     private String password;
     @Column(nullable = false)
-    private String role; // ADMIN, CLIENT, PROVIDER
+    private String role;
     @Column(nullable = false)
     private Boolean active;
     @Column(nullable = false, unique = true)
     private String phone;
 
-    // User 1 → Many Appointments
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Appointment> appointments = new ArrayList<>();
 
-    // User 1 → Many Notifications
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Notification> notifications = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonManagedReference // الطرف القائد
-    @JsonIgnore // هذا يخبر Jackson: لا تقترب من هذا الحقل نهائياً عند إرسال الرد
+    @JsonManagedReference
+    @JsonIgnore
     private List<Providers> providers = new ArrayList<>();
     @PrePersist
     private void defaultActive() {
@@ -79,7 +77,6 @@ public class User {
         return getClass().hashCode();
     }
 
-    // استبعد العلاقات من الـ toString لتجنب الـ Recursion أثناء الـ Logging
     @Override
     public String toString() {
         return "User{" + "id=" + id + ", name='" + name + '\'' + ", email='" + email + '\'' + '}';

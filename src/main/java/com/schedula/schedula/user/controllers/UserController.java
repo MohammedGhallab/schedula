@@ -30,7 +30,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PutMapping;
 
 @RestController
-@RequestMapping("/api/v1/users") // استخدام إصدار للـ API
+@RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 @Tag(name = "إدارة المستخدمين")
 public class UserController {
@@ -48,7 +48,6 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "جلب المستخدمين بصفحات")
     public ResponseEntity<List<UserDTO>> getAllUsers(@ParameterObject Pageable pageable) {
-        // @ParameterObject تجعل Swagger يعرض خيارات الـ Page و Size و Sort بشكل جميل
         return ResponseEntity.ok(userServices.getAllUsers(pageable));
     }
 
@@ -72,6 +71,6 @@ public class UserController {
     @com.schedula.schedula.audit.annotations.Auditable(action = "USER_DELETED")
     public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
         userServices.deleteUser(id);
-        return ResponseEntity.noContent().build(); // إرجاع 204 No Content
+        return ResponseEntity.noContent().build();
     }
 }

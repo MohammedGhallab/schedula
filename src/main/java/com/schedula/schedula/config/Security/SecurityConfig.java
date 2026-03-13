@@ -51,7 +51,6 @@ public class SecurityConfig {
                             response.getWriter().write(
                                     "{\"status\": 401, \"error\": \"Unauthorized\", \"message\": \"عذراً، يجب تسجيل الدخول للوصول إلى هذه الخدمة\"}");
                         })
-                        // 2. معالجة حالة: مسجل دخول ولكن يحاول الوصول لمورد غير مصرح له به
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
                             response.setContentType("application/json;charset=UTF-8");
                             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -72,7 +71,8 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsDataService);
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsDataService);
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }
@@ -92,9 +92,9 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(true);
         configuration.setAllowedOrigins(Arrays.asList(env.getProperty("app.frontend.url")));
-        configuration.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization"));
+        configuration.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization", "X-XSRF-TOKEN"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-
+        configuration.setExposedHeaders(Arrays.asList("X-XSRF-TOKEN"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

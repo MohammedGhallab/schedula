@@ -20,9 +20,6 @@ public class CustomUserDetails implements UserDetails {
     private final String role;
     private final String email;
 
-    // قمنا بإزالة authorities من الـ Fields لأنه يسبب مشاكل في Redis
-    // وسنقوم بتوليده لحظياً من الـ role
-
     @JsonCreator
     public CustomUserDetails(
             @JsonProperty("id") UUID id,
@@ -42,9 +39,8 @@ public class CustomUserDetails implements UserDetails {
     }
 
     @Override
-    @JsonIgnore // نمنع Jackson من محاولة قراءة/كتابة هذا الحقل في Redis
+    @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // يتم بناء الصلاحية من نص الـ role المخزن ببساطة
         return Collections.singletonList(new SimpleGrantedAuthority(role));
     }
 
@@ -59,30 +55,29 @@ public class CustomUserDetails implements UserDetails {
     }
 
     @Override
-    @JsonIgnore // أضف هذا
+    @JsonIgnore
     public boolean isEnabled() {
         return active;
     }
 
     @Override
-    @JsonIgnore // أضف هذا
+    @JsonIgnore
     public boolean isAccountNonExpired() {
         return true;
     }
 
     @Override
-    @JsonIgnore // أضف هذا
+    @JsonIgnore
     public boolean isAccountNonLocked() {
         return true;
     }
 
     @Override
-    @JsonIgnore // أضف هذا
+    @JsonIgnore
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
-    // Getters
     public UUID getId() {
         return id;
     }

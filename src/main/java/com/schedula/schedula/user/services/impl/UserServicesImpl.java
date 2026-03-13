@@ -29,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j // للمراقبة والـ Logging الاحترافي
+@Slf4j
 public class UserServicesImpl implements UserServices {
     private final UserMapper userMapper;
     private final UserRepository userRepository;
@@ -42,24 +42,20 @@ public class UserServicesImpl implements UserServices {
     public UserDTO getUserById(UUID id, String details) {
         return userRepository.findById(id)
                 .map(userMapper::toDTO)
-                .orElseThrow(() -> new EntityNotFoundException("المستخدم غير موجود بالمعرف: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Not found user by : " + id));
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<UserDTO> getAllUsers(Pageable pageable) {
-        StopWatch stopWatch = new StopWatch(); // أداة احترافية لحساب الوقت
+        StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
         Page<User> userPage = userRepository.findAll(pageable);
         List<UserDTO> users = userMapper.toDTOList(userPage.getContent());
 
-        // if (!users.isEmpty()) {
-        //     users.get(0).setCountAll(userPage.getTotalElements());
-        // }
-
         stopWatch.stop();
-        log.info("جلب المستخدمين استغرق: {} ms", stopWatch.getTotalTimeMillis());
+        log.info("time get user: {} ms", stopWatch.getTotalTimeMillis());
         return users;
     }
 
@@ -68,7 +64,7 @@ public class UserServicesImpl implements UserServices {
     public UserDTO saveUser(UserDTO dto) {
         User user = userMapper.toEntity(dto);
         user.setPassword(encoder.encode(dto.getPassword()));
-        user.setId(null); // ضمان الإنشاء
+        user.setId(null);
         return userMapper.toDTO(userRepository.save(user));
     }
 
@@ -76,9 +72,8 @@ public class UserServicesImpl implements UserServices {
     @Transactional
     public UserDTO updateUser(UserDTO dto) {
         User existingUser = userRepository.findById(dto.getId())
-                .orElseThrow(() -> new EntityNotFoundException("لا يمكن التحديث، المستخدم غير موجود"));
+                .orElseThrow(() -> new EntityNotFoundException("Update filed, User not exit"));
 
-        // استخدام MapStruct للتحديث التلقائي بدلاً من الـ Set اليدوي
         userMapper.updateEntityFromDto(dto, existingUser);
 
         return userMapper.toDTO(userRepository.save(existingUser));
@@ -88,7 +83,7 @@ public class UserServicesImpl implements UserServices {
     @Transactional
     public void deleteUser(UUID id) {
         if (!userRepository.existsById(id)) {
-            throw new EntityNotFoundException("لا يمكن الحذف، المستخدم غير موجود");
+            throw new EntityNotFoundException("Delete filed, User not exit");
         }
         userRepository.deleteById(id);
     }
@@ -96,35 +91,32 @@ public class UserServicesImpl implements UserServices {
     @Override
     @Transactional(readOnly = true)
     public CustomUserDetails login(LoginRequset data) {
-        log.info("محاولة تسجيل دخول للمستخدم: {}", data.getEmail());
-        
+        log.info("User try login: {}", data.getEmail());
+
         if (loginAttemptService.isBlocked(data.getEmail())) {
             log.warn("تم حظر حساب المستخدم {} بسبب كثرة المحاولات الفاشلة", data.getEmail());
-            throw new RuntimeException("تم حظر الحساب مؤقتاً بسبب كثرة محاولات الدخول الفاشلة. حاول مرة أخرى بعد 15 دقيقة.");
+            throw new RuntimeException(
+                    "تم حظر الحساب مؤقتاً بسبب كثرة محاولات الدخول الفاشلة. حاول مرة أخرى بعد 15 دقيقة.");
         }
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
         try {
-            // 1. المصادقة باستخدام AuthenticationManager
             Authentication authentication = authManager.authenticate(
                     new UsernamePasswordAuthenticationToken(data.getEmail(), data.getPassword()));
 
             stopWatch.stop();
-            log.info("تمت المصادقة بنجاح في {} ms", stopWatch.getTotalTimeMillis());
+            log.info("login succsfull in {} ms", stopWatch.getTotalTimeMillis());
 
-            // 2. استخراج تفاصيل المستخدم من Principal
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            
-            // نجاح تسجيل الدخول - مسح المحاولات الفاشلة
+
             loginAttemptService.loginSucceeded(data.getEmail());
-            
+
             return userDetails;
 
         } catch (BadCredentialsException e) {
             log.warn("فشل تسجيل الدخول: كلمة المرور خاطئة للمستخدم {}", data.getEmail());
-            // تسجيل محاولة فاشلة
             loginAttemptService.loginFailed(data.getEmail());
             throw new RuntimeException("البريد الإلكتروني أو كلمة المرور غير صحيحة");
         } catch (DisabledException e) {
@@ -136,11 +128,10 @@ public class UserServicesImpl implements UserServices {
     @Override
     @Transactional(readOnly = true)
     public User getUserByEmail(String email) {
-        // استخدام Optional للتعامل مع الحالة التي قد لا يوجد فيها المستخدم
         return userRepository.findByEmailAndActive(email, true)
                 .orElseThrow(() -> {
-                    log.error("لم يتم العثور على مستخدم نشط بالبريد: {}", email);
-                    return new EntityNotFoundException("المستخدم غير موجود أو غير مفعل");
+                    log.error("not found user by email: {}", email);
+                    return new EntityNotFoundException("not found user or is not active");
                 });
     }
 }

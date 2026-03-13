@@ -25,7 +25,7 @@ public class LoginAttemptService {
         Long attempts = redisTemplate.opsForValue().increment(cacheKey);
         
         if (attempts != null && attempts == 1) {
-            // First time failing, set expiration for 15 minutes
+
             redisTemplate.expire(cacheKey, Duration.ofMinutes(LOCK_TIME_DURATION_MINUTES));
         }
     }
